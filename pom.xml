@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>Kurashige-Gollub</groupId>
+  <artifactId>GCATest</artifactId>
+  <packaging>war</packaging>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>GCATest</name>
+  <url>http://maven.apache.org</url>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.16</version>      
+    </dependency>
+    -->
+    <dependency>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>3.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.6.0-beta</version>
+    </dependency>
+    
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <showDeprecation>true</showDeprecation>
+        </configuration>
+      </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.4.3</version>
+            <configuration>
+                <encoding>${project.build.sourceEncoding}</encoding>
+            </configuration>
+        </plugin>
+    </plugins>
+  </build>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
+    </properties>
+    <description><![CDATA[goal: create a web application to view a gmail user's calendar data,
+with the option to forward the calendar data in a mail message
+
+process: application operates as per the following
+
+1 User opens the test application page and on loading, the user's
+calender data for the next 2 weeks is retrieved and displayed.
+
+2 Authenticate the user via any Google authentication method, OAuth,
+AuthSub, ClientLogin, etc.
+(http://code.google.com/apis/accounts/docs/GettingStarted.html)
+
+3 User the Google Calendar API to retrieve user calendar data.
+(http://code.google.com/apis/calendar/data/2.0/developers_guide.html)
+
+4 The user can enter 1 or more mail address and click a button to open
+a gmail compose window prepopulated with the calendar data.
+
+notes:
+- Please create your own gmail account for development.
+- The test application should be developed in Java1.6 and run on Tomcat 6.0.</description>
+]]></description>
+</project>
