@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Copyright by Daniel Kurashige-Gollub, 2011
@@ -48,5 +49,38 @@ public class Utils {
         return p.getProperty(propertyName);
     }
 
+    /**
+     * 
+     * Will return a String with the request URL. 
+     * @param req The current HttpServletRequest.
+     * @param includeServlet Will include the servlet name in the return value.
+     * @param includePathInfo Will include the path and query parts in the return value (only added, if includeServlet is true as well).
+     * @return 
+     */
+    // http://hostname.com:80/appname/servlet/MyServlet/a/b;c=123?d=789
+    public static String reconstructURL(HttpServletRequest req, boolean includeServlet, boolean includePathInfo) {
+        String scheme       = req.getScheme();         // http
+        String serverName   = req.getServerName();     // hostname.com
+        int serverPort      = req.getServerPort();     // 80
+        String contextPath  = req.getContextPath();    // /appname
+        String servletPath  = req.getServletPath();    // /servlet/MyServlet
+        String pathInfo     = req.getPathInfo();       // /a/b;c=123
+        String queryString  = req.getQueryString();    // d=789
 
+        // Reconstruct original requesting URL
+        String url = scheme + "://" + serverName + ":" + serverPort + contextPath;
+        
+        if (includeServlet) {
+            url += servletPath;
+            if (includePathInfo) {
+                if (pathInfo != null) {
+                    url += pathInfo;
+                }
+                if (queryString != null) {
+                    url += "?" + queryString;
+                }
+            }
+        }
+        return url;
+    }
 }

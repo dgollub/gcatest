@@ -1,9 +1,9 @@
 package de.kurashigegollub.dev.gcatest;
 
+import com.google.api.client.auth.oauth2.draft10.AccessTokenErrorResponse;
 import de.kurashigegollub.com.google.calender.CalendarUrl;
 import de.kurashigegollub.com.google.calender.CalendarClient;
 import de.kurashigegollub.com.google.calender.CalendarCmdlineRequestInitializer;
-import com.google.api.client.auth.oauth2.draft10.AccessTokenErrorResponse;
 import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessTokenRequest.GoogleAuthorizationCodeGrant;
@@ -35,6 +35,7 @@ public class RequestServlet extends BaseServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    @Override
     protected void process(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws Exception {
 
@@ -44,10 +45,27 @@ public class RequestServlet extends BaseServlet {
         //google profile --> in other words: oauth2 was done. Whether or not it was successfull needs
         //to be checked now.
         
+        String code  = request.getParameter("code");
+        String error = request.getParameter("error");
         
-//              code = request.getParameter("code");
-
+        //Check for an error -> user may not have granted us permission :-(
+        if (!Utils.isEmpty(error)) {
+            //session.setAttribute(ERROR, error);
+            response.sendRedirect(String.format("%s/Error?%s=%s", request.getContextPath(), ERROR, error));
+            return;
+        }
         
+        if (!Utils.isEmpty(code)) {
+            session.setAttribute(ACCESS_CODE, code);            
+        }
+        else {
+            code = (String)session.getAttribute(ACCESS_CODE);
+        }
+        
+        if (Utils.isEmpty(code)) {
+            response.sendRedirect(String.format("%s/Error?%s=%s", request.getContextPath(), ERROR, "no_access_code"));
+            return;
+        }
         
         String accessToken = (String) session.getAttribute(ACCESS_TOKEN);
         String refreshToken = (String) session.getAttribute(REFRESH_TOKEN);
@@ -57,6 +75,8 @@ public class RequestServlet extends BaseServlet {
         log.info(String.format("clientId:     %s", clientId));
         log.info(String.format("clientSecret: %s", clientSecret));
         log.info(String.format("appName:      %s", appName));
+        log.info(String.format("code:         %s", code));
+        log.info(String.format("error:        %s", error));
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -71,10 +91,13 @@ public class RequestServlet extends BaseServlet {
             out.println("<body>");                       
             
 
-            log.info("Requesting access to google");
-            out.println("what now?");
+            log.info("Requesting access to google calendar now");
+            
+            out.println(String.format("<p>Code = %s</p>", code));
+            out.println(String.format("<p>Error = %s</p>", error));
+            
             try {
-                accessGoogle(request, response, clientId, clientSecret, appName, accessToken, refreshToken);
+                accessGoogleCalendar(request, response, code);
             } catch (Exception ex) {
                 log.log(Level.SEVERE, "Error:{0}", ex.getMessage());
                 out.println("<div class=\"error\">");
@@ -89,18 +112,17 @@ public class RequestServlet extends BaseServlet {
             out.close();
         }
     }
-    
    
-
-    private void accessGoogle(HttpServletRequest request, HttpServletResponse response, 
-                              String clientId, String clientSecret, String appName,
-                              String accessToken, String refreshToken) throws Exception {
+    private void accessGoogleCalendar(HttpServletRequest request, HttpServletResponse response, 
+                                      String code) throws Exception {
         
-//        GoogleAccessProtectedResource accessProtectedResource = 
-//            authorizeWithGoogle(clientId, clientSecret, CalendarUrl.CALENDER_ROOT_URL);
+        String redirectUrl = getRedirectUrlForGoogleCallback(request);
+        
+        GoogleAccessProtectedResource accessProtectedResource = 
+            authorizeWithGoogle(request.getSession(), code, redirectUrl, CalendarUrl.CALENDER_ROOT_URL);
         
         CalendarClient client =  new CalendarClient(
-            new CalendarCmdlineRequestInitializer(null).createRequestFactory());
+            new CalendarCmdlineRequestInitializer(accessProtectedResource).createRequestFactory());
         client.setPrettyPrint(true);
         client.setApplicationName(appName);
         
@@ -128,35 +150,65 @@ public class RequestServlet extends BaseServlet {
             throw ex;
         }
     }
+    
+    //TODO: we should check the 'expires_in' value and see we need to check for a new access token again
 
-    private static GoogleAccessProtectedResource authorizeWithGoogle(String clientId, String clientSecret, String scope) 
+    private GoogleAccessProtectedResource authorizeWithGoogle(final HttpSession session, String code, String redirectUrl, String scope) 
     throws Exception {
+        log.info("authorizeWithGoogle");
         
-        String redirectUrl = null;//getRedirectUrlForGoogleCallback();
-        String authorizationUrl = buildAuthUrl(clientId, redirectUrl, scope);
-
-        AccessTokenResponse response = exchangeCodeForAccessToken(clientId, clientSecret, redirectUrl);
+        AccessTokenResponse response = exchangeCodeForAccessToken(code, redirectUrl);
+                
+        //From the Google documentation: http://code.google.com/apis/accounts/docs/OAuth2WebServer.html
+        //refresh_token: A token that may be used to obtain a new access token. Refresh tokens are valid until the user revokes
+        //               access. This field is only present if access_type=offline is included in the authorization code request.
+        //That means that we really don't need the refresh token at all, because this application is not in OFFLINE modus.
+        String accessToken  = (String)session.getAttribute(ACCESS_TOKEN);
+        String refreshToken = (String)session.getAttribute(REFRESH_TOKEN);
         
-        return new GoogleAccessProtectedResource(response.accessToken, Utils.getHttpTransport(),
-                Utils.getJsonFactory(), clientId, clientSecret, response.refreshToken)
+        if (response != null) { 
+            //session.setAttribute(ACCESS_TOKEN, response.accessToken); //should be done in the onAccessToken method, see below!
+            session.setAttribute(REFRESH_TOKEN, response.refreshToken);
+            accessToken  = response.accessToken;
+            refreshToken = response.refreshToken;
+        }
+        
+        return new GoogleAccessProtectedResource(accessToken, 
+                                                 Utils.getHttpTransport(), Utils.getJsonFactory(), 
+                                                 clientId, clientSecret, refreshToken)
         {
             @Override
             protected void onAccessToken(String accessToken) {
                 //TODO: save accessToken to current session 
+                log.log(Level.FINE, "onAccessToken: {0}", accessToken);
+                session.setAttribute(ACCESS_TOKEN, accessToken);
             }
+            
         };
     }
 
-    private static AccessTokenResponse exchangeCodeForAccessToken(String clientId, String clientSecret, String redirectUrl) throws IOException {
-        String code = null;//TODO: get the code from googles answer for our request //receiver.waitForCode();
+    private AccessTokenResponse exchangeCodeForAccessToken(String code, String redirectUrl) throws IOException {
+        log.log(Level.INFO, "exchangeCodeForAccessToken: {0}", code);
         try {
-            // exchange code for an access token
+            //exchange the current code (auth code from when the user permitted our app to access his profile)
+            //for an access token --> http://code.google.com/apis/accounts/docs/OAuth2WebServer.html
+            
+            //If you contact Google for an OAuth2 token too quickly (ie. before the previous token expires),
+            //they will return an error:invalid_grant. 
+            
             return new GoogleAuthorizationCodeGrant(new NetHttpTransport(), Utils.getJsonFactory(), clientId, 
                                                     clientSecret, code, redirectUrl).execute();
         } catch (HttpResponseException ex) {
-            AccessTokenErrorResponse response = ex.getResponse().parseAs(AccessTokenErrorResponse.class);
-            log.log(Level.SEVERE, "Error: {0}", response.error);
-            return null;
+            AccessTokenErrorResponse response = ex.getResponse().parseAs(AccessTokenErrorResponse.class);            
+            //Were we asking too frequent and the tokens are still valid? Yes, if the error is "invalid_grant".
+            if ("invalid_grant".equalsIgnoreCase(response.error)) {
+                log.log(Level.WARNING, "We got an '{0}' error, which usually means we are asking the server too fast and the tokens are still valid.", response.error);
+                return null;
+            }
+            else {
+                log.log(Level.SEVERE, "Error: {0}", response.error);
+                throw ex;
+            }
         }
     }
 

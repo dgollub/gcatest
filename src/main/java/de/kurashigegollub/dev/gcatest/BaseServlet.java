@@ -24,6 +24,9 @@ public class BaseServlet extends HttpServlet {
     public static final String CLIENT_SECRET    = "clientSecret";
     public static final String APP_NAME         = "appName";
     public static final String SESSION_USER     = "sessionUser";
+    public static final String ACCESS_CODE      = "accessCode";
+    public static final String ERROR            = "error";
+    public static final String AUTH_CODE_OBJ    = "authCodeObj";
 
     protected String clientId;
     protected String clientSecret;
@@ -40,11 +43,16 @@ public class BaseServlet extends HttpServlet {
     {
         HttpSession session = getSession(request);
         
-        //check if we need to login
+        //Check if we need to login
         String user = (String)session.getAttribute(SESSION_USER);
         //we have to take care of the login servlet here, otherwise this will end up in an endless 
-        //redirect attempt
-        if (user == null && request.getContextPath().indexOf("/Login") != -1) {
+        //redirect attempt (same rules apply to the Error servlet)
+        String path = request.getContextPath();
+        
+        if (user == null && 
+            path.indexOf("/Login") != -1 &&
+            path.indexOf("/Error") != -1)
+        {
             //log.info("New session detected.");
             return request.getContextPath()+"/Login";
         }       
@@ -111,9 +119,10 @@ public class BaseServlet extends HttpServlet {
         return Utils.readFromPropertiesAsString("/gcatest.properties", string);
     }
     protected String getRedirectUrlForGoogleCallback(HttpServletRequest request) {
-        //TODO: build the local redirect URL -> google will return to this address after
-        //      auth is done or if an error occoured
-        return request.getContextPath() + "/Request"; //"http://localhost:8080/GCATest/Callback";
+        //build the local redirect URL -> google will return to this address after
+        //auth is done or if an error occoured
+        String url = Utils.reconstructURL(request, false, false);
+        return url + "/Request"; //"http://localhost:8080/GCATest/Request";
     }
 
     protected String buildAuthUrlForLogin(HttpServletRequest request) throws IOException {
