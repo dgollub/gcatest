@@ -1,0 +1,47 @@
+/* 
+    Document   : style
+    Created on : 15.11.2011, 13:34:05
+    Author     : Daniel Kurashige-Gollub
+    Description:
+        basic style for this application
+*/
+
+.error {
+    font-size: 1.5em;
+    color: red;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.entry {
+    font-family: Verdana, Arial;
+}
+
+.title {
+    font-size: x-large;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.updated {
+    font-size: x-small;
+    color: lightcyan;
+}
+
+.summary {
+    
+}
+
+.time {
+    font-size: x-small;
+    font-style: italic;
+    color: lightyellow;
+}
+
+.nodata {
+    color: purple;
+    font-size: larger;
+    font-style: italic;
+}

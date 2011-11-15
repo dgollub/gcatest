@@ -1,19 +1,21 @@
 package de.kurashigegollub.dev.gcatest;
 
+import de.kurashigegollub.com.google.calender.CalendarUrl;
+import de.kurashigegollub.com.google.calender.CalendarClient;
+import de.kurashigegollub.com.google.calender.CalendarCmdlineRequestInitializer;
 import com.google.api.client.auth.oauth2.draft10.AccessTokenErrorResponse;
 import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessTokenRequest.GoogleAuthorizationCodeGrant;
-import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAuthorizationRequestUrl;
 import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import de.kurashigegollub.com.google.calender.CalendarFeed;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,16 +24,9 @@ import javax.servlet.http.HttpSession;
  * Copyright by Daniel Kurashige-Gollub, 2011
  * @author Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
  */
-public class RequestServlet extends HttpServlet {
+public class RequestServlet extends BaseServlet {
 
     private static final Logger log = Logger.getLogger(RequestServlet.class.getSimpleName());
-
-    public static final String CALENDER_ROOT_URL = "https://www.google.com/calendar/feeds";
-    
-    public static final String REFRESH_TOKEN = "refreshToken";
-    public static final String ACCESS_TOKEN = "accessToken";
-    public static final String CLIENT_ID = "clientId";
-    public static final String CLIENT_SECRET = "clientSecret";
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -40,84 +35,110 @@ public class RequestServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-        log.info(String.format("session: %s", session));
-        if (session == null) {
-            log.info("New session");
-            session = request.getSession(true);
-        }
+    protected void process(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws Exception {
 
         //https://accounts.google.com/o/oauth2/auth
-        //check if we are already logged in with google
+        
+        //This servlet will be called once the user permits our application to use part of his
+        //google profile --> in other words: oauth2 was done. Whether or not it was successfull needs
+        //to be checked now.
+        
+        
+//              code = request.getParameter("code");
+
+        
+        
         String accessToken = (String) session.getAttribute(ACCESS_TOKEN);
         String refreshToken = (String) session.getAttribute(REFRESH_TOKEN);
-
-        String clientId = (String) session.getAttribute(CLIENT_ID);
-        if (clientId == null) {
-            clientId = readFromConfigAsString(CLIENT_ID);
-        }
-        String clientSecret = (String) session.getAttribute(CLIENT_SECRET);
-        if (clientSecret == null) {
-            clientSecret = readFromConfigAsString(CLIENT_SECRET);
-        }
 
         log.info(String.format("accessToken:  %s", accessToken));
         log.info(String.format("refreshToken: %s", refreshToken));
         log.info(String.format("clientId:     %s", clientId));
         log.info(String.format("clientSecret: %s", clientSecret));
-
-        if (Utils.isEmpty(accessToken)) { //we don't have a secure token yet, so we are not logged in yet
-
-            log.info("Requesting access to google");
-            try {
-                accessGoogle(request, response, clientId, clientSecret, accessToken, refreshToken);
-            } catch (Exception ex) {
-                log.log(Level.SEVERE, "Error:{0}", ex.getMessage());
-            }
-
-            return;
-        }
+        log.info(String.format("appName:      %s", appName));
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
+        
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet RequestServlet</title>");
+            out.println("<title>");
+            out.println(appName);
+            out.println("</title>");
             out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet RequestServlet at " + request.getContextPath() + "</h1>");
+            out.println("<body>");                       
+            
+
+            log.info("Requesting access to google");
+            out.println("what now?");
+            try {
+                accessGoogle(request, response, clientId, clientSecret, appName, accessToken, refreshToken);
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, "Error:{0}", ex.getMessage());
+                out.println("<div class=\"error\">");
+                out.println("<span class=\"bold\">Error during execution: </span>");
+                out.println(ex.getMessage());
+                out.println("</div>");
+            }
+
             out.println("</body>");
             out.println("</html>");
         } finally {
             out.close();
         }
     }
+    
+   
 
-    private void accessGoogle(HttpServletRequest request, HttpServletResponse response, String clientId, String clientSecret, 
+    private void accessGoogle(HttpServletRequest request, HttpServletResponse response, 
+                              String clientId, String clientSecret, String appName,
                               String accessToken, String refreshToken) throws Exception {
         
-        GoogleAccessProtectedResource accessProtectedResource = 
-                authorizeWithGoogle(clientId, clientSecret, CALENDER_ROOT_URL);
+//        GoogleAccessProtectedResource accessProtectedResource = 
+//            authorizeWithGoogle(clientId, clientSecret, CalendarUrl.CALENDER_ROOT_URL);
         
-        //accessProtectedResource.getTransport().createRequestFactory().
+        CalendarClient client =  new CalendarClient(
+            new CalendarCmdlineRequestInitializer(null).createRequestFactory());
+        client.setPrettyPrint(true);
+        client.setApplicationName(appName);
         
+        PrintWriter out = response.getWriter();
+        
+        try {
+            
+            GoogleCalendar gc = new GoogleCalendar(client);
+            
+            CalendarFeed cf = gc.listCalendarsAll();
+            if (cf.getEntries().isEmpty()) {
+                //empty calendar
+                out.println("<div class=\"nodata\">No calendars found in your Google profile.</div>");
+            }
+            else {
+                String html = HtmlView.createFeedHtml(cf);
+                out.println(html);
+            }
+        } 
+        catch (Exception ex) {
+            if (ex instanceof HttpResponseException)
+                log.severe(((HttpResponseException)ex).getResponse().parseAsString());
+            else
+                log.severe(ex.getMessage());
+            throw ex;
+        }
     }
 
     private static GoogleAccessProtectedResource authorizeWithGoogle(String clientId, String clientSecret, String scope) 
     throws Exception {
         
-        String redirectUrl = getRedirectUrl();
-        buildAuthUrl(clientId, redirectUrl, scope);
+        String redirectUrl = null;//getRedirectUrlForGoogleCallback();
+        String authorizationUrl = buildAuthUrl(clientId, redirectUrl, scope);
 
         AccessTokenResponse response = exchangeCodeForAccessToken(clientId, clientSecret, redirectUrl);
         
         return new GoogleAccessProtectedResource(response.accessToken, Utils.getHttpTransport(),
-                Utils.getJsonFactory(), clientId,
-                clientSecret, response.refreshToken)
+                Utils.getJsonFactory(), clientId, clientSecret, response.refreshToken)
         {
             @Override
             protected void onAccessToken(String accessToken) {
@@ -175,21 +196,7 @@ public class RequestServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String readFromConfigAsString(String string) throws IOException {
-        return Utils.readFromPropertiesAsString("/gcatest.properties", string);
-    }
     
-    private static String getRedirectUrl() {
-        //TODO: build the local redirect URL -> google will return to this address after
-        //      auth is done or if an error occoured
-        return "http://localhost:8080/GCATest/Callback";
-    }
-
-    private static String buildAuthUrl(String clientId, String redirectUrl, String scope)
-    throws IOException {
-        String authorizationUrl = new GoogleAuthorizationRequestUrl(clientId, redirectUrl, scope).build();
-        log.fine(String.format("AuthorizationUrl: %s", authorizationUrl));
-        return authorizationUrl;
-    }
+   
 
 }

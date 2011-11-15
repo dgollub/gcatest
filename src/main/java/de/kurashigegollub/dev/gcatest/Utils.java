@@ -14,13 +14,18 @@ import java.util.Properties;
  * @author Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
  */
 public class Utils {
-  
+
     private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    private static final JsonFactory   JSON_FACTORY   = new JacksonFactory();
-  
-    public static HttpTransport getHttpTransport()    { return HTTP_TRANSPORT; }
-    public static JsonFactory getJsonFactory()        { return JSON_FACTORY; }
-  
+    private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+
+    public static HttpTransport getHttpTransport() {
+        return HTTP_TRANSPORT;
+    }
+
+    public static JsonFactory getJsonFactory() {
+        return JSON_FACTORY;
+    }
+
     public static boolean isEmpty(String s) {
         return (s == null || s.isEmpty());
     }
@@ -31,16 +36,17 @@ public class Utils {
      * @return 
      */
     public static String readFromPropertiesAsString(String propertiesFile, String propertyName) throws IOException {
-        
+
         InputStream is = Utils.class.getResourceAsStream(propertiesFile.replace('/', File.separatorChar));
         if (is == null) {
             throw new IOException(String.format("Could not find %s", propertiesFile));
         }
-        
+
         Properties p = new Properties();
         p.load(is);
-        
+
         return p.getProperty(propertyName);
     }
-    
+
+
 }

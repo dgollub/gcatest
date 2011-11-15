@@ -9,6 +9,14 @@
         <servlet-name>RequestServlet</servlet-name>
         <servlet-class>de.kurashigegollub.dev.gcatest.RequestServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>de.kurashigegollub.dev.gcatest.LoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BaseServlet</servlet-name>
+        <servlet-class>de.kurashigegollub.dev.gcatest.BaseServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>CallbackServlet</servlet-name>
         <url-pattern>/Callback</url-pattern>
@@ -16,6 +24,10 @@
     <servlet-mapping>
         <servlet-name>RequestServlet</servlet-name>
         <url-pattern>/Request</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/Login</url-pattern>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     <session-config>
