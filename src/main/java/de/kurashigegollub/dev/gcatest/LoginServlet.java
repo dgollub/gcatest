@@ -65,9 +65,9 @@ public class LoginServlet extends BaseServlet {
             //TODO depending on whether or not the user granted us permission or he is not logged in, the following
             //     text should be different
             
-            out.println("<p>Please login to your Google account. You will be redirected to the login page now.</p>");
+            out.println("<p>Please grant this application access to your Google calendars. You will be redirected to the access login page now.</p>");
             out.println("<br>");
-            out.println("<p>Or you can click here: <a href=\""+redirectUrl+"\">Login</a></p>");
+            out.println("<p>Or you can click here: <a href=\""+redirectUrl+"\">Access Page</a></p>");
             out.println("<br>");
             out.println("<hr>");
             out.println("<p>");

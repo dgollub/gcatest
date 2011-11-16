@@ -1,6 +1,5 @@
 package de.kurashigegollub.dev.gcatest;
 
-import de.kurashigegollub.com.google.calender.CalendarEntry;
 import de.kurashigegollub.com.google.calender.Entry;
 import de.kurashigegollub.com.google.calender.EventEntry;
 import de.kurashigegollub.com.google.calender.Feed;
@@ -32,27 +31,29 @@ public class HtmlView {
             event = (EventEntry) entry;
         }
         
-        sb.append("<div class=\"entry\"");
-        if (!Utils.isEmpty(color)) {
-            sb.append(" style='background-color:").append(color).append(";'");
-        }
-        sb.append(">\n");
+        sb.append("<div class=\"entry\">");
         sb.append("<span class=\"title\"><a href=\"");
         sb.append(createUrl(baseUrl, entry.getEditLink()));
         sb.append("\">");
         sb.append(entry.title);
         sb.append("</a></span>");
         
+        if (!Utils.isEmpty(color)) {
+            sb.append("<br><span style='background-color:").append(color).append(";");
+            sb.append("color:").append(color).append(";'>");
+            sb.append("color for this calendar</span>");
+        }
+        
         sb.append("<br>");//.append("color:").append(color).append("<br>");
         
-        sb.append("<span class=\"updated\">");
+        sb.append("<span class=\"updated\">Updated: ");
         sb.append(entry.updated);
         sb.append("</span>");
         
         if (entry.summary != null) {
             sb.append("<br>");
             
-            sb.append("<span class=\"summary\">");
+            sb.append("<span class=\"summary\">Info: ");
             sb.append(entry.summary);
             sb.append("</span>");
         }
@@ -61,14 +62,20 @@ public class HtmlView {
             if (event.when != null) {
                 if (event.when.startTime != null) {
                     sb.append("<br>");
-                    sb.append("<span class=\"time\">");
+                    sb.append("<span class=\"time\">Start: ");
                     sb.append(event.when.startTime);
                     sb.append("</span>");
                 }
                 if (event.when.endTime != null) {
                     sb.append("<br>");
-                    sb.append("<span class=\"time\">");
+                    sb.append("<span class=\"time\">End: ");
                     sb.append(event.when.endTime);
+                    sb.append("</span>");
+                }
+                if (event.when.valueString != null) {
+                    sb.append("<br>");
+                    sb.append("<span class=\"time\">Info: ");
+                    sb.append(event.when.valueString);
                     sb.append("</span>");
                 }
             }

@@ -24,7 +24,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Request initializer for the Google Calendar Data API that takes care of the "gsessionid".
@@ -34,8 +33,6 @@ import java.util.logging.Logger;
 public class CalendarRequestInitializer
     implements HttpRequestInitializer, HttpExecuteInterceptor, HttpUnsuccessfulResponseHandler {
 
-    private static final Logger log = Logger.getLogger(CalendarRequestInitializer.class.getSimpleName());
-    
   private String gsessionid;
   private final HttpTransport transport;
 
@@ -69,8 +66,6 @@ public class CalendarRequestInitializer
   @Override
   public boolean handleResponse(HttpRequest request, HttpResponse response, boolean retrySupported)
       throws IOException {
-      
-    //log.info("handleResponse: " + response.parseAsString());
       
     if (response.getStatusCode() == 302) {
       GoogleUrl url = new GoogleUrl(response.getHeaders().getLocation());

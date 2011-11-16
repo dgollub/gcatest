@@ -1,30 +1,44 @@
+README
+------
+
 This application is based on a programming test I did for a job interview in Tokyo, Japan.
 
 I developed this on a Mac Book w/ Mac OS X 10.6 in NetBeans 7 between 2011-11-14 and 2011-11-20.
 
-This application uses serveral source files from the original Google samples for google-api-java-client. For more details about the samples please see http://code.google.com/p/google-api-java-client
+This application uses serveral source files from the original Google samples for google-api-java-client. 
+For more details about the samples please see http://code.google.com/p/google-api-java-client
 
-The original sample code and sample classes I use are in the package de.kurashigegollub.com.google.calender and the only file I modified is CalendarUrl.java. My own code is in the package de.kurashigegollub.dev.*.
+The original sample code and sample classes I use are in the package de.kurashigegollub.com.google.calender.
+The files I modified are as follows:
+
+- CalendarUrl.java
+- Entry.java
+
+The rest of my own code is in the package de.kurashigegollub.dev.*.
 
 Other technologies used:
     - Java EE
     - JavaScript
     - CSS
     - HTML
-    - git (there is a .git folder in the root folder of this project)
+    - git
     - Maven 3 (bundled w/ NetBeans 7)
     - Tomcat 6.0.33
     - Google Client Library for Java (see pom.xml for details)
 
-
 TODOs:
+------
 
 - refactor exception and error handling to be more streamlined
-- add a html template system, to replace the stringified HTML output in the Java classes
-- maybe: add unit tests
+- refactor application flow
+- add a html template system, to replace the direct HTML output in the Java classes
+  OR
+  use JSP/JSF instead
+- add unit tests
 
 
 Problem description is as follows:
+----------------------------------
 
 ++++++
 

@@ -23,6 +23,9 @@ import java.util.List;
  */
 public class Entry implements Cloneable {
 
+    /**
+     * Added by Daniel Kurashige-Gollub, 2011, daniel@kurashige-gollub.de
+     */
     public static class gCalColor {
         @Key("@value")
         public String value;

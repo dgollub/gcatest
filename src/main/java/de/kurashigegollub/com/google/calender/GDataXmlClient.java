@@ -24,7 +24,6 @@ import com.google.api.client.http.xml.atom.AtomParser;
 import com.google.api.client.xml.XmlNamespaceDictionary;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * GData XML client.
@@ -33,8 +32,6 @@ import java.util.logging.Logger;
  */
 public abstract class GDataXmlClient extends GDataClient {
 
-  private static final Logger log = Logger.getLogger(GDataXmlClient.class.getSimpleName());
-    
   private final XmlNamespaceDictionary namespaceDictionary;
 
   private boolean partialResponse = true;
@@ -67,9 +64,7 @@ public abstract class GDataXmlClient extends GDataClient {
   protected void prepareUrl(GoogleUrl url, Class<?> parseAsType) {
     super.prepareUrl(url, parseAsType);
     if (partialResponse && parseAsType != null) {
-      //String fields = GoogleAtom.getFieldsFor(parseAsType);
       url.fields = GoogleAtom.getFieldsFor(parseAsType);
-      //log.info("FIELDS: " + fields);
     }
   }
 

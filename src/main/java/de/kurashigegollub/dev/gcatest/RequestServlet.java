@@ -95,12 +95,6 @@ public class RequestServlet extends BaseServlet {
         String accessToken = (String) session.getAttribute(ACCESS_TOKEN);
         String refreshToken = (String) session.getAttribute(REFRESH_TOKEN);
 
-        log.info(String.format("accessToken:  %s", accessToken));
-        log.info(String.format("refreshToken: %s", refreshToken));
-//        log.info(String.format("clientId:     %s", clientId));
-//        log.info(String.format("clientSecret: %s", clientSecret));
-//        log.info(String.format("appName:      %s", appName));
-
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
@@ -159,6 +153,8 @@ public class RequestServlet extends BaseServlet {
             case CALENDAR_LIST:
                 StringBuilder sb = new StringBuilder();
                 sb.append("<h1>Calendar List</h1>\n");
+                sb.append("<br>\n");
+                sb.append("<p>Please select</p>\n");
                 sb.append("<br>\n");
                 
                 GoogleCalendar gc = new GoogleCalendar(client);
