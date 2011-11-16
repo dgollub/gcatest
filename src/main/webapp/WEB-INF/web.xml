@@ -2,10 +2,6 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <display-name>GCATest</display-name>
     <servlet>
-        <servlet-name>CallbackServlet</servlet-name>
-        <servlet-class>de.kurashigegollub.dev.gcatest.CallbackServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>RequestServlet</servlet-name>
         <servlet-class>de.kurashigegollub.dev.gcatest.RequestServlet</servlet-class>
     </servlet>
@@ -22,17 +18,13 @@
         <servlet-class>de.kurashigegollub.dev.gcatest.ErrorServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>CallbackServlet</servlet-name>
-        <url-pattern>/Callback</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>RequestServlet</servlet-name>
         <url-pattern>/Request</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/Login</url-pattern>
-        <url-pattern>/</url-pattern>
+        <url-pattern>/index.html</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ErrorServlet</servlet-name>
@@ -43,11 +35,11 @@
             30
         </session-timeout>
     </session-config>
-    <!--
+    
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
+        <welcome-file>Login</welcome-file>
     </welcome-file-list>
-    -->
+    
     <description>
 goal: create a web application to view a gmail user's calendar data,
 with the option to forward the calendar data in a mail message

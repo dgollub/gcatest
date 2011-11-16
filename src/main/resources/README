@@ -1,0 +1,57 @@
+This application is based on a programming test I did for a job interview in Tokyo, Japan.
+
+I developed this on a Mac Book w/ Mac OS X 10.6 in NetBeans 7 between 2011-11-14 and 2011-11-20.
+
+This application uses serveral source files from the original Google samples for google-api-java-client. For more details about the samples please see http://code.google.com/p/google-api-java-client
+
+The original sample code and sample classes I use are in the package de.kurashigegollub.com.google.calender and the only file I modified is CalendarUrl.java. My own code is in the package de.kurashigegollub.dev.*.
+
+Other technologies used:
+    - Java EE
+    - JavaScript
+    - CSS
+    - HTML
+    - git (there is a .git folder in the root folder of this project)
+    - Maven 3 (bundled w/ NetBeans 7)
+    - Tomcat 6.0.33
+    - Google Client Library for Java (see pom.xml for details)
+
+
+TODOs:
+
+- refactor exception and error handling to be more streamlined
+- add a html template system, to replace the stringified HTML output in the Java classes
+- maybe: add unit tests
+
+
+Problem description is as follows:
+
+++++++
+
+goal: create a web application to view a gmail user's calendar data,
+with the option to forward the calendar data in a mail message
+
+process: application operates as per the following
+1 User opens the test application page and on loading, the user's
+calender data for the next 2 weeks is retrieved and displayed.
+
+2 Authenticate the user via any Google authentication method, OAuth,
+AuthSub, ClientLogin, etc.
+(http://code.google.com/apis/accounts/docs/GettingStarted.html)
+
+3 User the Google Calendar API to retrieve user calendar data.
+(http://code.google.com/apis/calendar/data/2.0/developers_guide.html)
+
+4 The user can enter 1 or more mail address and click a button to open
+a gmail compose window prepopulated with the calendar data.
+
+notes:
+- Please create your own gmail account for development.
+- The test application should be developed in Java1.6 and run on Tomcat 6.0.
+
+++++++
+
+
+
+
+Daniel Kurashige-Gollub, 2011, daniel@kurashige-gollub.de

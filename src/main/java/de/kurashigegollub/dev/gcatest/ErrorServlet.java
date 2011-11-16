@@ -2,6 +2,7 @@ package de.kurashigegollub.dev.gcatest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpSession;
  * This servlet will display some HTML page with an error description.
  */
 public class ErrorServlet extends BaseServlet {
+
+    private static final Logger log = Logger.getLogger(ErrorServlet.class.getSimpleName());
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -28,11 +31,7 @@ public class ErrorServlet extends BaseServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {            
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Error!</title>");  
-            out.println("</head>");
-            out.println("<body>");
+            out.println(createBasicHtmlHeader(request, "Error!"));
             out.println("<h1>Error!</h1>");
 
             out.println("<p class=\"error\">");

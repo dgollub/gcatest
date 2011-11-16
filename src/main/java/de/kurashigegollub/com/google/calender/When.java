@@ -27,4 +27,8 @@ public class When {
 
   @Key("@endTime")
   public DateTime endTime;
+  
+  @Key("@valueString")
+  public String valueString;
+  
 }

@@ -23,10 +23,42 @@ public class BaseServlet extends HttpServlet {
     public static final String CLIENT_ID        = "clientId";
     public static final String CLIENT_SECRET    = "clientSecret";
     public static final String APP_NAME         = "appName";
-    public static final String SESSION_USER     = "sessionUser";
+    public static final String APP_STATE        = "appState";
     public static final String ACCESS_CODE      = "accessCode";
     public static final String ERROR            = "error";
     public static final String AUTH_CODE_OBJ    = "authCodeObj";
+    
+    public enum AppState {
+        
+        LOGIN(0, "login"),
+        CALENDAR_LIST(1, "list"),
+        CALENDAR_OVERVIEW(2, "overview"),
+        CALENDER_ENTRIES(3, "entries")
+        ;
+            
+        private final int state;
+        private final String stateName;
+        
+        private AppState(int state, String stateName) {
+            this.state     = state;
+            this.stateName = stateName;
+        }
+        
+        public String getStateName() { return stateName; }
+        public int    getState()     { return state; }
+        
+        public static AppState fromString(String stateName) {
+            try {
+                for (AppState as : AppState.values()) {
+                    if (as.getStateName().equalsIgnoreCase(stateName))
+                        return as;
+                }
+                return valueOf(stateName);
+            } catch (Exception ex) {
+                return LOGIN;
+            }
+        }
+    }
 
     protected String clientId;
     protected String clientSecret;
@@ -44,12 +76,13 @@ public class BaseServlet extends HttpServlet {
         HttpSession session = getSession(request);
         
         //Check if we need to login
-        String user = (String)session.getAttribute(SESSION_USER);
+        AppState appState = (AppState)session.getAttribute(APP_STATE);
+        
         //we have to take care of the login servlet here, otherwise this will end up in an endless 
         //redirect attempt (same rules apply to the Error servlet)
         String path = request.getContextPath();
         
-        if (user == null && 
+        if ((appState == null || appState == AppState.LOGIN) && 
             path.indexOf("/Login") != -1 &&
             path.indexOf("/Error") != -1)
         {
@@ -111,29 +144,57 @@ public class BaseServlet extends HttpServlet {
             } catch (Exception e) {
                 //ignore this one
             }
-            response.sendError(500, "Internal Problem: " + ex.getMessage());           
+            response.sendError(500, "Internal Problem: " + ex.getMessage()); 
+            //TODO: remove this
+            ex.printStackTrace();
         }
     }
 
     protected static String readFromConfigAsString(String string) throws IOException {
         return Utils.readFromPropertiesAsString("/gcatest.properties", string);
     }
-    protected String getRedirectUrlForGoogleCallback(HttpServletRequest request) {
+    protected String getRedirectUrlForGoogleCallback(HttpServletRequest request) {        
         //build the local redirect URL -> google will return to this address after
         //auth is done or if an error occoured
         String url = Utils.reconstructURL(request, false, false);
-        return url + "/Request"; //"http://localhost:8080/GCATest/Request";
+        url += "/Request"; //"http://localhost:8080/GCATest/Request";
+        return url;
     }
-
-    protected String buildAuthUrlForLogin(HttpServletRequest request) throws IOException {
-        return buildAuthUrl(clientId, getRedirectUrlForGoogleCallback(request), CalendarUrl.CALENDER_ROOT_URL);
+    protected String getRedirectUrlLogin(HttpServletRequest request) {
+        return Utils.reconstructURL(request, false, false) + "/Login";
     }
-    protected static String buildAuthUrl(String clientId, String redirectUrl, String scope)
+    
+    protected String buildAuthUrlForLogin(HttpServletRequest request)
     throws IOException {
-        String authorizationUrl = new GoogleAuthorizationRequestUrl(clientId, redirectUrl, scope).build();
-        log.fine(String.format("AuthorizationUrl: %s", authorizationUrl));
+        return buildAuthUrl(clientId, getRedirectUrlForGoogleCallback(request),
+                            //appState indicates the state the app should be in next
+                            CalendarUrl.CALENDER_ROOT_URL, AppState.CALENDAR_LIST);
+    }
+    protected String buildAuthUrl(String clientId, String redirectUrl, String scope, AppState appState)
+    throws IOException {
+        GoogleAuthorizationRequestUrl garu = new GoogleAuthorizationRequestUrl(clientId, redirectUrl, scope);
+        garu.state = appState.getStateName();
+        String authorizationUrl = garu.build();
+        log.info(String.format("AuthorizationUrl: %s", authorizationUrl));
         return authorizationUrl;
     }
+    
+    protected String createBasicHtmlHeader(HttpServletRequest request, String title) {
+        
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("<html>\n<head>\n<title>");
+        sb.append(title);
+        sb.append("</title>\n");
+        
+        String css = Utils.reconstructURL(request, false, false) + "/style.css";
+        
+        sb.append("<link href=\"").append(css).append("\" rel=\"stylesheet\" type=\"text/css\">\n");
+        sb.append("</head>\n<body>\n");
+        
+        return sb.toString();
+    }
+    
         
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 

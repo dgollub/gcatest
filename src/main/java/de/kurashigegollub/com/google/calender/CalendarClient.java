@@ -30,7 +30,8 @@ public class CalendarClient extends GDataXmlClient {
   static final XmlNamespaceDictionary DICTIONARY =
       new XmlNamespaceDictionary().set("", "http://www.w3.org/2005/Atom").set(
           "batch", "http://schemas.google.com/gdata/batch").set(
-          "gd", "http://schemas.google.com/g/2005");
+          "gd", "http://schemas.google.com/g/2005").set(
+          "gCal", "http://schemas.google.com/gCal/2005");
 
   public CalendarClient(HttpRequestFactory requestFactory) {
     super("2", requestFactory, DICTIONARY);

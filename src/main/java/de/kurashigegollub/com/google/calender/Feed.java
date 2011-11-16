@@ -33,6 +33,6 @@ public abstract class Feed {
   public String getBatchLink() {
     return Link.find(links, "http://schemas.google.com/g/2005#batch");
   }
-
+  
   public abstract List<? extends Entry> getEntries();
 }

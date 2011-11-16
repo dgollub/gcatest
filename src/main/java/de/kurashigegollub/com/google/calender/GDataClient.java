@@ -23,6 +23,7 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * GData client.
@@ -31,6 +32,8 @@ import java.io.IOException;
  */
 public abstract class GDataClient {
 
+    private final static Logger log = Logger.getLogger(GDataClient.class.getSimpleName());
+    
   private HttpRequestFactory requestFactory;
 
   private final String gdataVersion;
@@ -84,7 +87,14 @@ public abstract class GDataClient {
 
   protected final HttpResponse execute(HttpRequest request) throws IOException {
     prepare(request);
-    return request.execute();
+    log.info("request: " + request.getUrl().toString());
+    HttpResponse response = request.execute();
+    log.info("execute-ce: " + response.getContentEncoding());
+    log.info("execute-ct: " + response.getContentType());
+    log.info("execute-sm: " + response.getStatusMessage());
+    log.info("execute-sc: " + response.getStatusCode());
+    //log.info("execute: " + response.parseAsString());
+    return response;
   }
 
   protected final <T> T executeGet(GoogleUrl url, Class<T> parseAsType) throws IOException {

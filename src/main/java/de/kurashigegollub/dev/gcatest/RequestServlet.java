@@ -1,6 +1,8 @@
 package de.kurashigegollub.dev.gcatest;
 
 import com.google.api.client.auth.oauth2.draft10.AccessTokenErrorResponse;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpResponse;
 import de.kurashigegollub.com.google.calender.CalendarUrl;
 import de.kurashigegollub.com.google.calender.CalendarClient;
 import de.kurashigegollub.com.google.calender.CalendarCmdlineRequestInitializer;
@@ -43,10 +45,31 @@ public class RequestServlet extends BaseServlet {
         
         //This servlet will be called once the user permits our application to use part of his
         //google profile --> in other words: oauth2 was done. Whether or not it was successfull needs
-        //to be checked now.
+        //to be checked now.    
         
+        AppState appState = (AppState)session.getAttribute(APP_STATE);
+        
+        String state = (appState != null ? appState.getStateName() : null);
         String code  = request.getParameter("code");
         String error = request.getParameter("error");
+        
+        //we may get a state from the callback function after the user allows us to access his calendars
+        //in this case we override our own state variable
+        if (request.getParameter("state") != null)
+            state = request.getParameter("state"); 
+        appState = AppState.fromString(state);
+        
+        log.info(String.format("code:         %s", code));
+        log.info(String.format("error:        %s", error));
+        log.info(String.format("state:        %s", state));        
+        log.info(String.format("state:        %s", appState));
+        
+        if (appState == AppState.LOGIN) {
+            //Login should not happen here, but better be safe
+            log.warning("We are in LOGIN state. Why?");
+            response.sendRedirect(getRedirectUrlLogin(request));
+            return;
+        }
         
         //Check for an error -> user may not have granted us permission :-(
         if (!Utils.isEmpty(error)) {
@@ -62,8 +85,10 @@ public class RequestServlet extends BaseServlet {
             code = (String)session.getAttribute(ACCESS_CODE);
         }
         
-        if (Utils.isEmpty(code)) {
-            response.sendRedirect(String.format("%s/Error?%s=%s", request.getContextPath(), ERROR, "no_access_code"));
+        if (Utils.isEmpty(code)) { 
+            //The session may have timed out
+            response.sendRedirect(getRedirectUrlLogin(request));           
+            //response.sendRedirect(String.format("%s/Error?%s=%s", request.getContextPath(), ERROR, "no_access_code"));
             return;
         }
         
@@ -72,88 +97,95 @@ public class RequestServlet extends BaseServlet {
 
         log.info(String.format("accessToken:  %s", accessToken));
         log.info(String.format("refreshToken: %s", refreshToken));
-        log.info(String.format("clientId:     %s", clientId));
-        log.info(String.format("clientSecret: %s", clientSecret));
-        log.info(String.format("appName:      %s", appName));
-        log.info(String.format("code:         %s", code));
-        log.info(String.format("error:        %s", error));
+//        log.info(String.format("clientId:     %s", clientId));
+//        log.info(String.format("clientSecret: %s", clientSecret));
+//        log.info(String.format("appName:      %s", appName));
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
-        
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>");
-            out.println(appName);
-            out.println("</title>");
-            out.println("</head>");
-            out.println("<body>");                       
-            
-
             log.info("Requesting access to google calendar now");
             
-            out.println(String.format("<p>Code = %s</p>", code));
-            out.println(String.format("<p>Error = %s</p>", error));
-            
-            try {
-                accessGoogleCalendar(request, response, code);
-            } catch (Exception ex) {
-                log.log(Level.SEVERE, "Error:{0}", ex.getMessage());
-                out.println("<div class=\"error\">");
-                out.println("<span class=\"bold\">Error during execution: </span>");
-                out.println(ex.getMessage());
-                out.println("</div>");
-            }
+            String redirectUrl = getRedirectUrlForGoogleCallback(request);
+        
+            GoogleAccessProtectedResource accessProtectedResource = 
+                authorizeWithGoogle(request.getSession(), code, redirectUrl, CalendarUrl.CALENDER_ROOT_URL);
 
+            CalendarClient client =  new CalendarClient(
+                new CalendarCmdlineRequestInitializer(accessProtectedResource).createRequestFactory());
+            client.setPrettyPrint(true);
+            client.setApplicationName(appName);
+            
+            String appTitle = appName;
+            
+            switch(appState) {
+                case CALENDAR_LIST:
+                    appTitle += " - Calendar List";
+                    break;
+                case CALENDAR_OVERVIEW:
+                    appTitle += " - Calendar Overview";
+                    break;
+                case CALENDER_ENTRIES:
+                    appTitle += " - Calendar Entries";
+                    break;
+            }
+            
+            out.println(createBasicHtmlHeader(request, appTitle));
+            out.println(accessGoogleCalendar(client, appState));
+            
             out.println("</body>");
             out.println("</html>");
-        } finally {
-            out.close();
-        }
-    }
-   
-    private void accessGoogleCalendar(HttpServletRequest request, HttpServletResponse response, 
-                                      String code) throws Exception {
-        
-        String redirectUrl = getRedirectUrlForGoogleCallback(request);
-        
-        GoogleAccessProtectedResource accessProtectedResource = 
-            authorizeWithGoogle(request.getSession(), code, redirectUrl, CalendarUrl.CALENDER_ROOT_URL);
-        
-        CalendarClient client =  new CalendarClient(
-            new CalendarCmdlineRequestInitializer(accessProtectedResource).createRequestFactory());
-        client.setPrettyPrint(true);
-        client.setApplicationName(appName);
-        
-        PrintWriter out = response.getWriter();
-        
-        try {
-            
-            GoogleCalendar gc = new GoogleCalendar(client);
-            
-            CalendarFeed cf = gc.listCalendarsAll();
-            if (cf.getEntries().isEmpty()) {
-                //empty calendar
-                out.println("<div class=\"nodata\">No calendars found in your Google profile.</div>");
-            }
-            else {
-                String html = HtmlView.createFeedHtml(cf);
-                out.println(html);
-            }
         } 
         catch (Exception ex) {
             if (ex instanceof HttpResponseException)
                 log.severe(((HttpResponseException)ex).getResponse().parseAsString());
             else
-                log.severe(ex.getMessage());
-            throw ex;
+                log.severe(ex.getMessage());            
+            out.println("<div class=\"error\">");
+            out.println("<span class=\"bold\">Error during execution: </span>");
+            out.println(ex.getMessage());
+            out.println("</div>");            
         }
+        finally {
+            out.close();
+        }
+    }
+   
+    private String accessGoogleCalendar(CalendarClient client, AppState appState) throws Exception {
+        
+        String html = "<h3>No Data Access Yet</h3>";
+        
+        switch(appState) {
+            case CALENDAR_LIST:
+                StringBuilder sb = new StringBuilder();
+                sb.append("<h1>Calendar List</h1>\n");
+                sb.append("<br>\n");
+                
+                GoogleCalendar gc = new GoogleCalendar(client);
+                CalendarFeed cf = gc.listCalendarsAll();
+                if (cf.getEntries().isEmpty()) {
+                    //empty calendar
+                    sb.append("<div class=\"nodata\">No calendars found in your Google profile.</div>");
+                }
+                else {
+                    sb.append(HtmlView.createCalendarListHtml("", cf));
+                }
+                html = sb.toString();
+                break;
+                
+            case CALENDAR_OVERVIEW:
+                break;
+                
+            case CALENDER_ENTRIES:
+                break;
+        }
+        
+        return html;
     }
     
     //TODO: we should check the 'expires_in' value and see we need to check for a new access token again
-
-    private GoogleAccessProtectedResource authorizeWithGoogle(final HttpSession session, String code, String redirectUrl, String scope) 
+    private GoogleAccessProtectedResource authorizeWithGoogle(final HttpSession session, String code, String redirectUrl, 
+                                                              String scope) 
     throws Exception {
         log.info("authorizeWithGoogle");
         
@@ -180,14 +212,26 @@ public class RequestServlet extends BaseServlet {
             @Override
             protected void onAccessToken(String accessToken) {
                 //TODO: save accessToken to current session 
-                log.log(Level.FINE, "onAccessToken: {0}", accessToken);
+                log.log(Level.INFO, "onAccessToken: {0}", accessToken);
                 session.setAttribute(ACCESS_TOKEN, accessToken);
             }
+
+//            @Override
+//            public boolean handleResponse(HttpRequest request, HttpResponse response, boolean retrySupported) {
+//                try {
+//                    log.info("handleResponse ++ : " + response.parseAsString());
+//                } catch (IOException ex) {
+//                    Logger.getLogger(RequestServlet.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                return super.handleResponse(request, response, retrySupported);
+//            }
+            
             
         };
     }
 
-    private AccessTokenResponse exchangeCodeForAccessToken(String code, String redirectUrl) throws IOException {
+    private AccessTokenResponse exchangeCodeForAccessToken(String code, String redirectUrl)
+    throws IOException {
         log.log(Level.INFO, "exchangeCodeForAccessToken: {0}", code);
         try {
             //exchange the current code (auth code from when the user permitted our app to access his profile)
@@ -202,7 +246,7 @@ public class RequestServlet extends BaseServlet {
             AccessTokenErrorResponse response = ex.getResponse().parseAs(AccessTokenErrorResponse.class);            
             //Were we asking too frequent and the tokens are still valid? Yes, if the error is "invalid_grant".
             if ("invalid_grant".equalsIgnoreCase(response.error)) {
-                log.log(Level.WARNING, "We got an '{0}' error, which usually means we are asking the server too fast and the tokens are still valid.", response.error);
+                log.warning("We got an error, which usually means we are asking the server too fast and the tokens are still valid.");
                 return null;
             }
             else {

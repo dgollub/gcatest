@@ -1,5 +1,6 @@
 package de.kurashigegollub.dev.gcatest;
 
+import de.kurashigegollub.com.google.calender.CalendarEntry;
 import de.kurashigegollub.com.google.calender.Entry;
 import de.kurashigegollub.com.google.calender.EventEntry;
 import de.kurashigegollub.com.google.calender.Feed;
@@ -10,27 +11,39 @@ import de.kurashigegollub.com.google.calender.Feed;
  */
 public class HtmlView {
 
-    public static String createFeedHtml(Feed feed) {
+    public static String createCalendarListHtml(String baseUrl, Feed feed) {
 
         StringBuilder sb = new StringBuilder();
 
         for (Entry entry : feed.getEntries()) {
-            sb.append(createEntryHtml(entry));
+            sb.append(createCalendarListEntryHtml(baseUrl, entry));
             sb.append("<br>");
-        }
+        }       
 
         return sb.toString();
     }
 
-    public static String createEntryHtml(Entry entry) {
+    public static String createCalendarListEntryHtml(String baseUrl, Entry entry) {
         StringBuilder sb = new StringBuilder();
-
-        sb.append("<div class=\"entry\">");
-        sb.append("<span class=\"title\">");
-        sb.append(entry.title);
-        sb.append("</span>");
         
-        sb.append("<br>");
+        String color = entry.color != null ? entry.color.value : null;
+        EventEntry event = null;
+        if (entry instanceof EventEntry) {
+            event = (EventEntry) entry;
+        }
+        
+        sb.append("<div class=\"entry\"");
+        if (!Utils.isEmpty(color)) {
+            sb.append(" style='background-color:").append(color).append(";'");
+        }
+        sb.append(">\n");
+        sb.append("<span class=\"title\"><a href=\"");
+        sb.append(createUrl(baseUrl, entry.getEditLink()));
+        sb.append("\">");
+        sb.append(entry.title);
+        sb.append("</a></span>");
+        
+        sb.append("<br>");//.append("color:").append(color).append("<br>");
         
         sb.append("<span class=\"updated\">");
         sb.append(entry.updated);
@@ -44,8 +57,7 @@ public class HtmlView {
             sb.append("</span>");
         }
         
-        if (entry instanceof EventEntry) {
-            EventEntry event = (EventEntry) entry;
+        if (event != null) {
             if (event.when != null) {
                 if (event.when.startTime != null) {
                     sb.append("<br>");
@@ -61,7 +73,11 @@ public class HtmlView {
                 }
             }
         }
-        sb.append("</div>");
+        sb.append("</div>\n\n");
         return sb.toString();
+    }
+    
+    private static String createUrl(String base, String calendar) {
+        return base + calendar;
     }
 }

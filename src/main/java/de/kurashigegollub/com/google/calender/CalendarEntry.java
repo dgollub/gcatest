@@ -14,6 +14,8 @@
 
 package de.kurashigegollub.com.google.calender;
 
+import com.google.api.client.util.Key;
+
 
 /**
  * @author Yaniv Inbar
@@ -23,7 +25,7 @@ public class CalendarEntry extends Entry {
   public String getEventFeedLink() {
     return Link.find(links, "http://schemas.google.com/gCal/2005#eventFeed");
   }
-
+  
   @Override
   public CalendarEntry clone() {
     return (CalendarEntry) super.clone();

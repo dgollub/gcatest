@@ -20,14 +20,14 @@
 }
 
 .title {
-    font-size: x-large;
+    font-size: larger;
     font-weight: bold;
     font-style: italic;
 }
 
 .updated {
     font-size: x-small;
-    color: lightcyan;
+    color: royalblue;
 }
 
 .summary {
@@ -37,7 +37,7 @@
 .time {
     font-size: x-small;
     font-style: italic;
-    color: lightyellow;
+    color: greenyellow;
 }
 
 .nodata {

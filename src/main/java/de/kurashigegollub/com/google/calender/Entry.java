@@ -11,7 +11,6 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package de.kurashigegollub.com.google.calender;
 
 import com.google.api.client.util.Data;
@@ -24,31 +23,39 @@ import java.util.List;
  */
 public class Entry implements Cloneable {
 
-  @Key
-  public String summary;
-
-  @Key
-  public String title;
-
-  @Key
-  public String updated;
-
-  @Key("link")
-  public List<Link> links;
-
-  @Override
-  protected Entry clone() {
-    try {
-      @SuppressWarnings("unchecked")
-      Entry result = (Entry) super.clone();
-      Data.deepCopy(this, result);
-      return result;
-    } catch (CloneNotSupportedException e) {
-      throw new IllegalStateException(e);
+    public static class gCalColor {
+        @Key("@value")
+        public String value;
     }
-  }
+    
+    @Key("gCal:color")
+    public gCalColor color;
+    
+    @Key
+    public String summary;
+    
+    @Key
+    public String title;
+    
+    @Key
+    public String updated;
+    
+    @Key("link")
+    public List<Link> links;
 
-  public String getEditLink() {
-    return Link.find(links, "edit");
-  }
+    @Override
+    protected Entry clone() {
+        try {
+            @SuppressWarnings("unchecked")
+            Entry result = (Entry) super.clone();
+            Data.deepCopy(this, result);
+            return result;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public String getEditLink() {
+        return Link.find(links, "edit");
+    }
 }

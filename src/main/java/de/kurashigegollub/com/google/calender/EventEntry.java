@@ -21,7 +21,7 @@ import com.google.api.client.util.Key;
  * @author Yaniv Inbar
  */
 public class EventEntry extends Entry {
-
+  
   @Key("gd:when")
   public When when;
 
@@ -33,7 +33,7 @@ public class EventEntry extends Entry {
 
   @Key("batch:operation")
   public BatchOperation batchOperation;
-
+  
   @Override
   public EventEntry clone() {
     return (EventEntry) super.clone();
