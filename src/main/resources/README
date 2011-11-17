@@ -1,7 +1,9 @@
 README
 ------
 
-This application is based on a programming test I did for a job interview in Tokyo, Japan.
+This application/proof of concept is based on a programming test I did for a job interview in Tokyo, Japan. 
+
+For copyright and licence information please refer to the bottom of this readme file.
 
 I developed this on a Mac Book w/ Mac OS X 10.6 in NetBeans 7 between 2011-11-14 and 2011-11-20.
 
@@ -11,8 +13,12 @@ For more details about the samples please see http://code.google.com/p/google-ap
 The original sample code and sample classes I use are in the package de.kurashigegollub.com.google.calender.
 The files I modified are as follows:
 
+EDITED:
 - CalendarUrl.java
 - Entry.java
+
+ADDED:
+- Author.java
 
 The rest of my own code is in the package de.kurashigegollub.dev.*.
 
@@ -25,20 +31,27 @@ Other technologies used:
     - Maven 3 (bundled w/ NetBeans 7)
     - Tomcat 6.0.33
     - Google Client Library for Java (see pom.xml for details)
+    - Apache libraries such as commons-io (see pom.xml for details)
 
-TODOs:
+TODOs/ideas:
 ------
 
 - refactor exception and error handling to be more streamlined
 - refactor application flow
-- add a html template system, to replace the direct HTML output in the Java classes
+    + if only one calendar is present, the user should see all the entries immediately and
+      he shouldn't be forced to first click on the calendar
+    + ...
+
+- add a html template system to replace the direct HTML output in the Java classes (maybe http://code.google.com/closure/templates/)
   OR
   use JSP/JSF instead
 - add unit tests
+- add proper JDoc annotations and documentation
+- prettify HTML & CSS
 
 
-Problem description is as follows:
-----------------------------------
+Task description is as follows:
+-------------------------------
 
 ++++++
 
@@ -65,7 +78,34 @@ notes:
 
 ++++++
 
+Comments on workflow, general implementation and other topics
+-------------------------------------------------------------
+
+TODO
 
 
 
-Daniel Kurashige-Gollub, 2011, daniel@kurashige-gollub.de
+COPYRIGHT & LICENCE INFORMATION
+-------------------------------
+
+The copyright for 3rd party code (eg Google) is clearly stated in every 3rd party file.
+
+All other code is copyright (C) 2011 by Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
+
+The licence for my part of the code is "Apache License, Version 2.0", and it is the same
+as the Google example code, which I use as stated above.
+
+/**
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+Copyright (C) 2011 Daniel Kurashige-Gollub, daniel@kurashige-gollub.de

@@ -1,6 +1,22 @@
+/**
+ * Copyright (C) 2011 Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
+ * Please see the README file for details.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package de.kurashigegollub.dev.gcatest;
 
 import java.io.PrintWriter;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +39,7 @@ public class LoginServlet extends BaseServlet {
         
         AppState appState = (AppState)session.getAttribute(APP_STATE);
         if (appState != null)
-            log.info("AppState = " + appState.getStateName());
+            log.log(Level.INFO, "AppState = {0}", appState.getStateName());
         
         //check if we have a valid session - if yes, move on to the Request servlet
         if (appState != null && appState != AppState.LOGIN) {
@@ -76,8 +92,12 @@ public class LoginServlet extends BaseServlet {
             out.println("Also: don't forget to enter the clientId, clientSecret and the application name in the gcatest.properties file before you compile and deploy this Tomcat application.");
             out.println("</p>");
             
-            out.println("</body>");
-            out.println("</html>");
+            out.println("<p>Please see the <a href='");
+            out.println(getRedirectUrlReadme(request));
+            out.println("'>README</a> for further details about this application.");
+            out.println("</p>");
+            
+            out.println(createBasicHtmlFooter(request));
         }        
         finally {
             out.close();

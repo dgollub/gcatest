@@ -22,6 +22,9 @@ import com.google.api.client.util.Key;
  */
 public class EventEntry extends Entry {
   
+  @Key("content")
+  public String content;
+    
   @Key("gd:when")
   public When when;
 
@@ -38,4 +41,12 @@ public class EventEntry extends Entry {
   public EventEntry clone() {
     return (EventEntry) super.clone();
   }
+  
+  //Author: Daniel Kurashige-Gollub, 2011
+  //<entry gd:etag='&quot;F0wCRA1Geip7JGA6WhJW&quot;' gd:kind='calendar#event'>
+  //<id>http://www.google.com/calendar/feeds/gollub.daniel%40gmail.com/events/gradafqe372qilpafpomtj3q7k</id>
+  public String getEventId() {
+      return id.substring(id.lastIndexOf("/")+1);
+  }
+          
 }

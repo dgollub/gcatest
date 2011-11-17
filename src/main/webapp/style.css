@@ -11,12 +11,19 @@
     color: red;
 }
 
+.readme {
+    
+}
+
 .bold {
     font-weight: bold;
 }
 
 .entry {
     font-family: Verdana, Arial;
+    border-style: solid dotted;
+    border-width: thin;
+    border-color: navy;
 }
 
 .title {
@@ -28,6 +35,11 @@
 .updated {
     font-size: x-small;
     color: royalblue;
+}
+
+.author {
+    font-variant: small-caps;
+    font-style: italic;
 }
 
 .summary {
@@ -44,4 +56,20 @@
     color: purple;
     font-size: larger;
     font-style: italic;
+}
+
+.id {
+    font-family: monospace, fantasy;
+}
+
+.content {
+    font-size: smaller;
+    font-family: sans-serif;
+    background-color: beige;
+}
+
+.info {
+    font-size: smaller;
+    font-family: Gill, Helvetica, sans-serif;
+    background-color: skyblue;
 }

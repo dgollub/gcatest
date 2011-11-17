@@ -56,10 +56,6 @@ public class CalendarClient extends GDataXmlClient {
     return super.executePost(url, content instanceof Feed, content);
   }
 
-  public EventCollection eventFeed() {
-    return new EventCollection();
-  }
-
   /** Event collection. */
   public class EventCollection {
 
@@ -108,6 +104,12 @@ public class CalendarClient extends GDataXmlClient {
       }
     }
   }
+  
+  //++dg added by Daniel Kurashige-Gollub, 2011
+  public EventCollection eventFeed() {
+      return new EventCollection();
+  }
+  
 
   public CalendarCollection calendarFeed() {
     return new CalendarCollection();

@@ -13,26 +13,26 @@
  */
 package de.kurashigegollub.com.google.calender;
 
+import de.kurashigegollub.dev.gcatest.googleadditions.Author;
 import com.google.api.client.util.Data;
 import com.google.api.client.util.Key;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Yaniv Inbar
  */
 public class Entry implements Cloneable {
 
-    /**
-     * Added by Daniel Kurashige-Gollub, 2011, daniel@kurashige-gollub.de
-     */
-    public static class gCalColor {
-        @Key("@value")
-        public String value;
-    }
-    
-    @Key("gCal:color")
-    public gCalColor color;
+    @Key("id")
+    public String id;
+
+    @Key("author")
+    public Author author;
     
     @Key
     public String summary;
@@ -57,8 +57,22 @@ public class Entry implements Cloneable {
             throw new IllegalStateException(e);
         }
     }
+    
+    public String getDecodedId() {
+        String tmp = id.substring(id.lastIndexOf("/")+1);        
+        try {
+            return URLDecoder.decode(tmp, "utf-8");
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Entry.class.getName()).log(Level.SEVERE, null, ex);
+            return tmp;
+        }
+    }
 
     public String getEditLink() {
         return Link.find(links, "edit");
+    }
+    
+    public String getEventFeedLinks() {
+        return Link.find(links, "http://schemas.google.com/gCal/2005#eventFeed");
     }
 }

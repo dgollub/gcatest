@@ -23,33 +23,52 @@ import com.google.api.client.util.Key;
 public class CalendarUrl extends GoogleUrl {
 
     public static final String CALENDER_ROOT_URL = "https://www.google.com/calendar/feeds";
+    
     @Key("max-results")
     public Integer maxResults;
+    
+    //From the google docs: http://code.google.com/apis/calendar/data/2.0/reference.html#Parameters
+    //Use the RFC 3339 timestamp format. For example: 2005-08-09T10:57:00-08:00.
+    //The lower bound is inclusive, whereas the upper bound is exclusive.
+    //Events that overlap the range are included. 
+    @Key("start-min")
+    public String startMin;
+    
+    @Key("start-max")
+    public String startMax;
 
     public CalendarUrl(String url) {
         super(url);
     }
 
-    public static CalendarUrl getUrlRoot() {
+    public static CalendarUrl forRoot() {
         return new CalendarUrl(CALENDER_ROOT_URL);
     }
 
-    public static CalendarUrl getUrlCalendarMetafeed() {
-        CalendarUrl result = getUrlRoot();
+    public static CalendarUrl forCalendarMetafeed() {
+        CalendarUrl result = forRoot();
         result.getPathParts().add("default");
         return result;
     }
 
-    public static CalendarUrl getUrlAllCalendarsFeed() {
-        CalendarUrl result = getUrlCalendarMetafeed();
+    public static CalendarUrl forAllCalendarsFeed() {
+        CalendarUrl result = forCalendarMetafeed();
         result.getPathParts().add("allcalendars");
         result.getPathParts().add("full");
         return result;
     }
 
-    public static CalendarUrl getUrlOwnCalendarsFeed() {
-        CalendarUrl result = getUrlCalendarMetafeed();
+    public static CalendarUrl forOwnCalendarsFeed() {
+        CalendarUrl result = forCalendarMetafeed();
         result.getPathParts().add("owncalendars");
+        result.getPathParts().add("full");
+        return result;
+    }
+    
+    public static CalendarUrl forCalendarEvents(String calendarId) {
+        CalendarUrl result = forRoot();
+        result.getPathParts().add(calendarId);
+        result.getPathParts().add("private");
         result.getPathParts().add("full");
         return result;
     }

@@ -1,6 +1,7 @@
-/*
- * Copyright (c) 2010 Google Inc.
- *
+/**
+ * Copyright (C) 2011 Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
+ * Please see the README file for details.
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -12,31 +13,17 @@
  * the License.
  */
 
-package de.kurashigegollub.com.google.calender;
+package de.kurashigegollub.dev.gcatest.googleadditions;
 
-import de.kurashigegollub.dev.gcatest.googleadditions.Author;
 import com.google.api.client.util.Key;
 
-import java.util.List;
-
 /**
- * @author Yaniv Inbar
+ * Copyright by Daniel Kurashige-Gollub, 2011
+ * @author Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
  */
-public abstract class Feed {
-   
-  @Key("author")
-  public Author author;
-    
-  @Key("link")
-  public List<Link> links;
-
-  public String getNextLink() {
-    return Link.find(links, "next");
-  }
-
-  public String getBatchLink() {
-    return Link.find(links, "http://schemas.google.com/g/2005#batch");
-  }
-  
-  public abstract List<? extends Entry> getEntries();
+public class Author {
+    @Key
+    public String name;
+    @Key
+    public String email;
 }

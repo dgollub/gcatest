@@ -1,6 +1,22 @@
+/**
+ * Copyright (C) 2011 Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
+ * Please see the README file for details.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package de.kurashigegollub.dev.gcatest;
 
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAuthorizationRequestUrl;
+import com.google.api.client.http.GenericUrl;
 import de.kurashigegollub.com.google.calender.CalendarUrl;
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -31,9 +47,9 @@ public class BaseServlet extends HttpServlet {
     public enum AppState {
         
         LOGIN(0, "login"),
-        CALENDAR_LIST(1, "list"),
-        CALENDAR_OVERVIEW(2, "overview"),
-        CALENDER_ENTRIES(3, "entries")
+        CALENDAR_LIST(1, "list"), //state we reach after the callback from google
+        CALENDAR_ENTRIES(2, "entries"), //state after user clicked on one calendar
+        CALL_GMAIL(3, "gmail") //after user clicked on "send mail" button
         ;
             
         private final int state;
@@ -153,16 +169,49 @@ public class BaseServlet extends HttpServlet {
     protected static String readFromConfigAsString(String string) throws IOException {
         return Utils.readFromPropertiesAsString("/gcatest.properties", string);
     }
+
+    //Build the local redirect URL -> google will return to this address after
+    //auth is done or if an error occoured.
+    //Important: this url has to be the same every time we make this call! It is the one that
+    //is saved in the Google API Console Access tab.
     protected String getRedirectUrlForGoogleCallback(HttpServletRequest request) {        
-        //build the local redirect URL -> google will return to this address after
-        //auth is done or if an error occoured
-        String url = Utils.reconstructURL(request, false, false);
-        url += "/Request"; //"http://localhost:8080/GCATest/Request";
-        return url;
+        //url += "/Request"; //"http://localhost:8080/GCATest/Request";
+        GenericUrl url = new GenericUrl(Utils.reconstructURL(request, false, false));
+        url.getPathParts().add("Request");
+        return url.build();
     }
     protected String getRedirectUrlLogin(HttpServletRequest request) {
         return Utils.reconstructURL(request, false, false) + "/Login";
     }
+    protected String getRedirectUrlReadme(HttpServletRequest request) {
+        return Utils.reconstructURL(request, false, false) + "/Readme";
+    }
+//    protected String getRedirectUrlCalendarEvents(HttpServletRequest request, String calendarId, AppState appState) {
+//        GenericUrl url = new GenericUrl(Utils.reconstructURL(request, false, false));
+//        url.getPathParts().add("Request");
+//        //url.getPathParts().add("calendarId="+calendarId);
+//        //url.getPathParts().add("state="+appState.getStateName());
+//        return url.build() + "?calendarId="+calendarId+"&state="+appState.getStateName();
+//    }
+//    protected String getRedirectUrlEventGmail(HttpServletRequest request, String eventId, AppState appState) {
+//        GenericUrl url = new GenericUrl(Utils.reconstructURL(request, false, false));
+//        url.getPathParts().add("Request");
+//        //url.getPathParts().add("calendarId="+calendarId);
+//        //url.getPathParts().add("state="+appState.getStateName());
+//        return url.build() + "?eventId="+eventId+"&state="+appState.getStateName();
+//    }
+    protected String getAppStateBaseUrl(HttpServletRequest request, AppState appState) {
+        GenericUrl url = new GenericUrl(Utils.reconstructURL(request, false, false));
+        url.getPathParts().add("Request");
+        //url.getPathParts().add("state="+appState.getStateName());
+        return url.build() + "?state="+appState.getStateName();
+    }
+    
+//    protected String buildAuthUrlForCalendarAccess(HttpServletRequest request, String calendarId, AppState appState) 
+//    throws IOException {
+//        return buildAuthUrl(clientId, getRedirectUrlCalendarEvents(request, calendarId),
+//                            CalendarUrl.CALENDER_ROOT_URL, appState);
+//    }
     
     protected String buildAuthUrlForLogin(HttpServletRequest request)
     throws IOException {
@@ -175,9 +224,18 @@ public class BaseServlet extends HttpServlet {
         GoogleAuthorizationRequestUrl garu = new GoogleAuthorizationRequestUrl(clientId, redirectUrl, scope);
         garu.state = appState.getStateName();
         String authorizationUrl = garu.build();
-        log.info(String.format("AuthorizationUrl: %s", authorizationUrl));
+        log.info(String.format("buildAuthUrl: %s", authorizationUrl));
         return authorizationUrl;
     }
+    
+//    protected String buildCalendarEventsUrl(String clientId, String redirectUrl, String scope, AppState appState) 
+//    throws IOException {
+//        GoogleAuthorizationRequestUrl garu = new GoogleAuthorizationRequestUrl(clientId, redirectUrl, scope);
+//        garu.state = appState.getStateName();
+//        String authUrl = garu.build();
+//        log.info(String.format("buildCalendarEventsUrl: %s", authUrl));
+//        return authUrl;
+//    }
     
     protected String createBasicHtmlHeader(HttpServletRequest request, String title) {
         
@@ -191,6 +249,17 @@ public class BaseServlet extends HttpServlet {
         
         sb.append("<link href=\"").append(css).append("\" rel=\"stylesheet\" type=\"text/css\">\n");
         sb.append("</head>\n<body>\n");
+        
+        return sb.toString();
+    }
+    
+    protected String createBasicHtmlFooter(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("\n<br><br><hr><br>");
+        sb.append("\n");
+        sb.append("\n</body>");
+        sb.append("\n</html>");
         
         return sb.toString();
     }

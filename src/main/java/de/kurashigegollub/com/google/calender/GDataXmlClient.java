@@ -64,7 +64,7 @@ public abstract class GDataXmlClient extends GDataClient {
   protected void prepareUrl(GoogleUrl url, Class<?> parseAsType) {
     super.prepareUrl(url, parseAsType);
     if (partialResponse && parseAsType != null) {
-      url.fields = GoogleAtom.getFieldsFor(parseAsType);
+      //url.fields = GoogleAtom.getFieldsFor(parseAsType);
     }
   }
 

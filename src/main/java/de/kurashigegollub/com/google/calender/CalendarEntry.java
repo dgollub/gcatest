@@ -21,7 +21,18 @@ import com.google.api.client.util.Key;
  * @author Yaniv Inbar
  */
 public class CalendarEntry extends Entry {
+    /**
+     * Added by Daniel Kurashige-Gollub, 2011, daniel@kurashige-gollub.de
+     */
+    public static class gCalColor {
+        @Key("@value")
+        public String value;
+    }
 
+    @Key("gCal:color")
+    public gCalColor color;
+
+    
   public String getEventFeedLink() {
     return Link.find(links, "http://schemas.google.com/gCal/2005#eventFeed");
   }

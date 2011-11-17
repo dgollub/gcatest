@@ -93,7 +93,8 @@ public abstract class GDataClient {
     log.info("execute-ct: " + response.getContentType());
     log.info("execute-sm: " + response.getStatusMessage());
     log.info("execute-sc: " + response.getStatusCode());
-    //log.info("execute: " + response.parseAsString());
+    //if (request.getUrl().toString().startsWith("https://www.google.com/calendar/feeds/gollub.daniel@gmail.com"))
+      //  log.info("execute: " + response.parseAsString());
     return response;
   }
 
