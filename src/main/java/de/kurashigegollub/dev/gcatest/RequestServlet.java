@@ -109,7 +109,10 @@ public class RequestServlet extends BaseServlet {
             //      Check for timeout in a more secure way, not just this one code variable!!!
             //The session may have timed out, so the code variable may be empty -> if that is the case
             //we propably should display a "Session timed out, please login again" page.
-            response.sendRedirect(getRedirectUrlLogin(request));           
+            log.warning("No code present, which may mean that the session timed out.");
+            session.setAttribute(APP_STATE, AppState.LOGIN);
+            session.invalidate();
+            response.sendRedirect(getRedirectUrlLogin(request));
             //response.sendRedirect(String.format("%s/Error?%s=%s", request.getContextPath(), ERROR, "no_access_code"));
             return;
         }

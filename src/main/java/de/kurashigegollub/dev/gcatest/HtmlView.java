@@ -66,7 +66,7 @@ public class HtmlView {
         }
         if (ef != null) {
             sb.append("<p>Please select the entry you want to send via your Gmail account.</p>\n");
-            sb.append("<p><a href='").append(backUrl).append("'>Back to the previous page.</p>");
+            sb.append("<p><a href='").append(backUrl).append("'>Back to the previous page.</a></p>");
         }
 
         sb.append("<hr>");
