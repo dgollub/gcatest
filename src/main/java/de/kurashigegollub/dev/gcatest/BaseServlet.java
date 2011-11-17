@@ -42,6 +42,7 @@ public class BaseServlet extends HttpServlet {
     public static final String APP_STATE        = "appState";
     public static final String ACCESS_CODE      = "accessCode";
     public static final String ERROR            = "error";
+    public static final String ERROR_TIMEOUT    = "timeout";
     public static final String AUTH_CODE_OBJ    = "authCodeObj";
     
     public enum AppState {
@@ -153,7 +154,8 @@ public class BaseServlet extends HttpServlet {
         }
         catch (Exception ex) {
             //TODO: fix this exception handling
-            System.err.println(ex.getMessage());
+            log.severe(ex.getMessage());
+            log.severe(Utils.getStackTraceAsString(ex));
             try {
                 HttpSession session = request.getSession();
                 session.invalidate();
@@ -161,8 +163,6 @@ public class BaseServlet extends HttpServlet {
                 //ignore this one
             }
             response.sendError(500, "Internal Problem: " + ex.getMessage()); 
-            //TODO: remove this
-            ex.printStackTrace();
         }
     }
 
@@ -274,6 +274,7 @@ public class BaseServlet extends HttpServlet {
         sb.append(getRedirectUrlReadme(request));
         sb.append("'>README</a> for further details about this application.");
         sb.append("</div>");
+        sb.append("<br><br>");
         sb.append("\n</body>");
         sb.append("\n</html>");
         

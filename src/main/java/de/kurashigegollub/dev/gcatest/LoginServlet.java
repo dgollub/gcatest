@@ -85,6 +85,11 @@ public class LoginServlet extends BaseServlet {
             out.println("<br>");
             out.println("<p>Or you can click here: <a href=\""+redirectUrl+"\">Access Page</a></p>");
             out.println("<br>");
+            
+            if (ERROR_TIMEOUT.equalsIgnoreCase(request.getParameter(ERROR))) {
+                out.println("<div class=\"error\">Your session is no longer valid. Please grant access to your calendar data again.</div>");
+            }
+            
             out.println("<hr>");
             out.println("<p>");
             out.println("For developers: you may need to setup your <a href='https://code.google.com/apis/console'>API Access in the API Console</a>");

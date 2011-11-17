@@ -110,9 +110,10 @@ public class RequestServlet extends BaseServlet {
             //The session may have timed out, so the code variable may be empty -> if that is the case
             //we propably should display a "Session timed out, please login again" page.
             log.warning("No code present, which may mean that the session timed out.");
+            //TODO: add an error message to the redirect url and display it in the Login page: "SESSION TIMED OUT"
             session.setAttribute(APP_STATE, AppState.LOGIN);
             session.invalidate();
-            response.sendRedirect(getRedirectUrlLogin(request));
+            response.sendRedirect(getRedirectUrlLogin(request) + "?"+ERROR+"="+ ERROR_TIMEOUT);
             return;
         }
         
@@ -215,16 +216,15 @@ public class RequestServlet extends BaseServlet {
                 
             case CALENDAR_ENTRIES: {
                 StringBuilder sb = new StringBuilder();
+                StringBuilder sbBackUrl = new StringBuilder();
+                        
+                sbBackUrl.append("<p><a href='").append(backUrl);
+                sbBackUrl.append("'>Back to the list of available calendars.</a></p>");
+                        
                 sb.append("<h1>Calendar '").append(calendarId).append("' Events</h1>\n");             
                 
                 EventFeed ef = gc.listEventsForCalendar(calendarId, dtnow, dt2weeks);
-                int entriesCount = ef.getEntries().size();
-                
-//                sb.append("<p class=\".smallinfo\">Found ").append(entriesCount);
-//                if (entriesCount > 1)
-//                    sb.append(" entries.</p>\n");
-//                else
-//                    sb.append(" entry.</p>\n");
+                int entriesCount = ef.getEntries().size();             
                 
                 if (entriesCount == 0) {
                     sb.append("<div class=\"nodata\">No entries found in this calendar for the time between ");
@@ -243,13 +243,14 @@ public class RequestServlet extends BaseServlet {
                     sb.append("<i>").append(dt2weeks.toStringRfc3339()).append("</i>");
                     sb.append("</div>");
                     
-                    //TODO add necessary javascript to handle gmail stuff
+                    sb.append(sbBackUrl.toString());
                     
+                    //TODO add necessary javascript to handle gmail stuff
+
                     sb.append(HtmlView.createListHtml(baseUrl, ef, dtnow, dt2weeks, backUrl));
                 }
                 
-                sb.append("<p><a href='").append(backUrl);
-                sb.append("'>Back to the list of available calendars.</a></p>");
+                sb.append(sbBackUrl.toString());
                 html = sb.toString();
                 break;
             }
