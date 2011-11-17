@@ -66,7 +66,11 @@ public class HtmlView {
         }
         if (ef != null) {
             sb.append("<p>Please select the entry you want to send via your Gmail account.</p>\n");
-            sb.append("<p><a href='").append(backUrl).append("'>Back to the previous page.</a></p>");
+            
+            //TODO: add the gmail javascript and html stuff here
+            
+            
+            
         }
 
         sb.append("<hr>");
@@ -75,7 +79,9 @@ public class HtmlView {
             sb.append(createListEntryHtml(baseUrl, entry));
             sb.append("<br>");
         }       
-
+        
+        sb.append("<hr>");
+        
         return sb.toString();
     }
 
@@ -93,7 +99,7 @@ public class HtmlView {
             color = ce.color != null ? ce.color.value : null;
         }
         
-        sb.append("<div class=\"entry\">");
+        sb.append("<div class=\"entry\" id=\"entryId_").append(entry.id).append("\">");
         sb.append("<span class=\"title\">");
         
         if (ce != null) {

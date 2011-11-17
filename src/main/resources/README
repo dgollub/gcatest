@@ -1,11 +1,12 @@
 README
 ------
 
-This application/proof of concept is based on a programming test I did for a job interview in Tokyo, Japan. 
+This application/proof of concept is based on a programming test (not a design contest) I did for a job interview in Tokyo, Japan. 
 
 For copyright and licence information please refer to the bottom of this readme file.
 
-I developed this on a Mac Book w/ Mac OS X 10.6 in NetBeans 7 between 2011-11-14 and 2011-11-20.
+I developed this on a Mac Book w/ Mac OS X 10.6 in NetBeans 7 between 2011-11-14 and 2011-11-20. 
+I also used the Google Chrome browser (version 15.*) to test this application.
 
 This application uses serveral source files from the original Google samples for google-api-java-client. 
 For more details about the samples please see http://code.google.com/p/google-api-java-client
@@ -32,6 +33,7 @@ Other technologies used:
     - Tomcat 6.0.33
     - Google Client Library for Java (see pom.xml for details)
     - Apache libraries such as commons-io (see pom.xml for details)
+    - jQuery 1.7
 
 TODOs/ideas:
 ------
@@ -81,7 +83,6 @@ notes:
 Comments on workflow, general implementation and other topics
 -------------------------------------------------------------
 
-TODO
 
 
 

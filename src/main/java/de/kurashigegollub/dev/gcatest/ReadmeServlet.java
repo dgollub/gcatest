@@ -49,7 +49,10 @@ public class ReadmeServlet extends BaseServlet {
             out.print(Utils.readFileAsStringFromBundle("README"));
             out.print("</pre>");
             
-            out.println(createBasicHtmlFooter(request));
+            //out.println(createBasicHtmlFooter(request));
+            
+            out.println("</body>");
+            out.println("</html>");
         } finally {            
             out.close();
         }    

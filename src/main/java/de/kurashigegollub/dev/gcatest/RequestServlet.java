@@ -113,7 +113,6 @@ public class RequestServlet extends BaseServlet {
             session.setAttribute(APP_STATE, AppState.LOGIN);
             session.invalidate();
             response.sendRedirect(getRedirectUrlLogin(request));
-            //response.sendRedirect(String.format("%s/Error?%s=%s", request.getContextPath(), ERROR, "no_access_code"));
             return;
         }
         
@@ -131,19 +130,15 @@ public class RequestServlet extends BaseServlet {
             String redirectUrl  = getRedirectUrlForGoogleCallback(request); 
             String backUrl      = redirectUrl;
 
-            //String nextStateUrl = null;
-            
             switch(appState) {
                 case CALENDAR_LIST: //this is the state
                     nextState = AppState.CALENDAR_ENTRIES;
                     appTitle += " - Calendar List";
-                    //nextStateUrl = getRedirectUrlCalendarEvents(request, calendarId, nextState);
                     break;
                 case CALENDAR_ENTRIES:                    
                     appTitle += " - Calendar Entries";                
                     nextState = AppState.CALL_GMAIL; //TODO: check this
                     backUrl = getAppStateBaseUrl(request, AppState.CALENDAR_LIST);
-                    //nextStateUrl = getRedirectUrlEventGmail(request, eventId, nextState);
                     //TODO: do the gmail thing
                     break;
             }
@@ -178,7 +173,7 @@ public class RequestServlet extends BaseServlet {
             out.println("<br><br>");
             out.println(Utils.getStackTraceAsString(ex));
             out.println("</div>");
-            ex.printStackTrace();
+            ex.printStackTrace(); //TODO: this is just for debugging and should be removed in production code
         }
         finally {
             out.close();
@@ -202,11 +197,16 @@ public class RequestServlet extends BaseServlet {
                 sb.append("<h1>Calendar List</h1>\n");
                 
                 CalendarFeed cf = gc.listCalendarsAll();
-                if (cf.getEntries().isEmpty()) {
+                int entriesCount = cf.getEntries().size();
+                if (entriesCount == 0) {
                     //empty calendar
                     sb.append("<div class=\"nodata\">No calendars found in your Google profile.</div>");
                 }
                 else {
+                    if (entriesCount > 1)
+                        sb.append("<div>").append(entriesCount).append(" calendars available.</div>");
+                    else
+                        sb.append("<div>Only one calendar available.</div>");
                     sb.append(HtmlView.createListHtml(baseUrl, cf, dtnow, dt2weeks, backUrl));
                 }
                 html = sb.toString();
@@ -218,7 +218,15 @@ public class RequestServlet extends BaseServlet {
                 sb.append("<h1>Calendar '").append(calendarId).append("' Events</h1>\n");             
                 
                 EventFeed ef = gc.listEventsForCalendar(calendarId, dtnow, dt2weeks);
-                if (ef.getEntries().isEmpty()) {
+                int entriesCount = ef.getEntries().size();
+                
+//                sb.append("<p class=\".smallinfo\">Found ").append(entriesCount);
+//                if (entriesCount > 1)
+//                    sb.append(" entries.</p>\n");
+//                else
+//                    sb.append(" entry.</p>\n");
+                
+                if (entriesCount == 0) {
                     sb.append("<div class=\"nodata\">No entries found in this calendar for the time between ");
                     sb.append("<i>").append(dtnow.toStringRfc3339()).append("</i>");
                     sb.append(" and ");
@@ -226,13 +234,22 @@ public class RequestServlet extends BaseServlet {
                     sb.append("</div>");
                 }
                 else {
-                    sb.append("<div class=\"nodata\">Entries for the time between ");
+                    if (entriesCount > 1)
+                        sb.append("<div>").append(entriesCount).append(" entries for the time between ");
+                    else
+                        sb.append("<div>One entry for the time between ");
                     sb.append("<i>").append(dtnow.toStringRfc3339()).append("</i>");
                     sb.append(" and ");
                     sb.append("<i>").append(dt2weeks.toStringRfc3339()).append("</i>");
                     sb.append("</div>");
+                    
+                    //TODO add necessary javascript to handle gmail stuff
+                    
                     sb.append(HtmlView.createListHtml(baseUrl, ef, dtnow, dt2weeks, backUrl));
                 }
+                
+                sb.append("<p><a href='").append(backUrl);
+                sb.append("'>Back to the list of available calendars.</a></p>");
                 html = sb.toString();
                 break;
             }

@@ -244,10 +244,23 @@ public class BaseServlet extends HttpServlet {
         sb.append("<html>\n<head>\n<title>");
         sb.append(title);
         sb.append("</title>\n");
+        sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
         
-        String css = Utils.reconstructURL(request, false, false) + "/style.css";
+        String baseUrl   = Utils.reconstructURL(request, false, false);
+        String cssUrl    = baseUrl + "/css/style.css";
+        String jsUrl     = baseUrl + "/js/script.js";
+        String jQueryUrl = baseUrl + "/js/jquery-1.7.min.js";
+                
+        sb.append("<link href=\"").append(cssUrl).append("\" rel=\"stylesheet\" type=\"text/css\">\n");
         
-        sb.append("<link href=\"").append(css).append("\" rel=\"stylesheet\" type=\"text/css\">\n");
+        //TODO: Actually, this should probably happen near the end of the page, so loading times on the
+        //      client side are faster.
+        //      Read the following link for a bit of an overview regarding loading times, optimizations, etc.
+        //      done on Google+
+        //      https://plus.google.com/u/0/115060278409766341143/posts/ViaVbBMpSVG
+        sb.append("<script src=\"").append(jsUrl).append("\" type=\"text/javascript\"></script>\n");
+        sb.append("<script src=\"").append(jQueryUrl).append("\" type=\"text/javascript\"></script>\n");
+        
         sb.append("</head>\n<body>\n");
         
         return sb.toString();
@@ -256,8 +269,11 @@ public class BaseServlet extends HttpServlet {
     protected String createBasicHtmlFooter(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder();
         
-        sb.append("\n<br><br><hr><br>");
-        sb.append("\n");
+        sb.append("\n<br><br><hr><br>\n");
+        sb.append("<div class=\"footer\">Please see the <a href='");
+        sb.append(getRedirectUrlReadme(request));
+        sb.append("'>README</a> for further details about this application.");
+        sb.append("</div>");
         sb.append("\n</body>");
         sb.append("\n</html>");
         

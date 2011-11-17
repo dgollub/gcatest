@@ -92,11 +92,6 @@ public class LoginServlet extends BaseServlet {
             out.println("Also: don't forget to enter the clientId, clientSecret and the application name in the gcatest.properties file before you compile and deploy this Tomcat application.");
             out.println("</p>");
             
-            out.println("<p>Please see the <a href='");
-            out.println(getRedirectUrlReadme(request));
-            out.println("'>README</a> for further details about this application.");
-            out.println("</p>");
-            
             out.println(createBasicHtmlFooter(request));
         }        
         finally {
