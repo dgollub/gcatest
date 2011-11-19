@@ -26,7 +26,6 @@ import javax.servlet.http.HttpSession;
  */
 public class ReadmeServlet extends BaseServlet {
 
-    
     @Override
     protected void process(HttpServletRequest request, HttpServletResponse response, HttpSession session) 
     throws Exception {
@@ -37,6 +36,12 @@ public class ReadmeServlet extends BaseServlet {
             
             out.print("<pre class=\"readme\">");
             out.print(Utils.readFileAsStringFromBundle("README"));
+            out.print("</pre>");
+            
+            out.println("<hr>");
+            
+            out.print("<pre class=\"readme\">");
+            out.print(Utils.readFileAsStringFromBundle("LICENCE"));
             out.print("</pre>");
             
             //out.println(createBasicHtmlFooter(request));
