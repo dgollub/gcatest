@@ -31,7 +31,6 @@ import java.io.PrintWriter;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -44,13 +43,6 @@ public class RequestServlet extends BaseServlet {
 
     private static final Logger log = Logger.getLogger(RequestServlet.class.getSimpleName());
 
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void process(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws Exception {
@@ -157,6 +149,15 @@ public class RequestServlet extends BaseServlet {
             
             out.println(createBasicHtmlHeader(request, appTitle));
             
+            //If this is indeed the appState == CALENDAR_ENTRIES, we need to activate the 
+            //Google Data JS client library ==> http://code.google.com/apis/gdata/docs/js.html
+            //because we Gmail part of this application is done purely in JavaScript on the client side
+            if (appState == AppState.CALENDAR_ENTRIES) {
+                out.println("<script type=\"text/javascript\" src=\"js/json2.js\"></script>");
+                //out.println("google.load(\"gdata\", \"2\");")
+                //out.println("google.load(\"gdata\", \"2.x\", {packages: [\"blogger\", \"contacts\"]}\");");
+            }
+            
             //Access the Google Calendar API and print the result as HTML.
             out.println(accessGoogleCalendar(client, appState, getAppStateBaseUrl(request, nextState), 
                                              backUrl, calendarId, eventId));
@@ -174,7 +175,7 @@ public class RequestServlet extends BaseServlet {
             out.println("<br><br>");
             out.println(Utils.getStackTraceAsString(ex));
             out.println("</div>");
-            ex.printStackTrace(); //TODO: this is just for debugging and should be removed in production code
+            log.severe(Utils.getStackTraceAsString(ex));
         }
         finally {
             out.close();
@@ -334,44 +335,5 @@ public class RequestServlet extends BaseServlet {
             }
         }
     }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
     
-   
-
 }

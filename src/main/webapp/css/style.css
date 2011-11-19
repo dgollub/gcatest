@@ -17,8 +17,7 @@
     Document   : style
     Created on : 2011-11-15
     Author     : Daniel Kurashige-Gollub
-    Description:
-        basic style for this application
+    Description: basic style for this application
 */
 
 .error {
@@ -101,4 +100,8 @@
 .smallinfo {
     font-size: x-small;
     color: lightgrey;
+}
+
+.checkbox {
+	font-size: x-small;	
 }

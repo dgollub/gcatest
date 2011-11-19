@@ -81,6 +81,7 @@ public class BaseServlet extends HttpServlet {
     protected String clientSecret;
     protected String appName;
     
+    //This has to be overwritten in the subclasses
     protected void process(HttpServletRequest request, HttpServletResponse response, HttpSession session)
     throws Exception 
     {

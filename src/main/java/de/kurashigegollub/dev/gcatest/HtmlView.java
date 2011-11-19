@@ -65,12 +65,9 @@ public class HtmlView {
             sb.append(".</p>\n");                       
         }
         if (ef != null) {
-            sb.append("<p>Please select the entry you want to send via your Gmail account.</p>\n");
-            
-            //TODO: add the gmail javascript and html stuff here
-            
-            
-            
+            sb.append("<p>Please select the entry you want to send via your Gmail account.</p>\n");            
+            //add the gmail javascript and html stuff here
+            sb.append(createGmailPrepForm());
         }
 
         sb.append("<hr>");
@@ -99,7 +96,7 @@ public class HtmlView {
             color = ce.color != null ? ce.color.value : null;
         }
         
-        sb.append("<div class=\"entry\" id=\"entryId_").append(entry.id).append("\">");
+        sb.append("<div class=\"entry\" id=\"").append(entry.id).append("\">");
         sb.append("<span class=\"title\">");
         
         if (ce != null) {
@@ -108,7 +105,16 @@ public class HtmlView {
             sb.append("\">");
         }
         sb.append(entry.title);
-        sb.append("</a></span>");
+        if (ce != null) {
+            sb.append("</a>");
+        }
+        sb.append("</span>\n");
+        if (ce == null) { //we only need the checkbox when these entries are calendar entries and not calendars
+            sb.append("<br>\n<span class=\"checkbox\"><input type=\"checkbox\"");
+            sb.append("name=\"entry_checked\" value=\"");
+            sb.append(entry.id);
+            sb.append("\">Send this entry?</span>\n");
+        }
         
         //sb.append("<br>");
         //sb.append("ID: ").append(entry.id).append(" - ").append(entry.getCalendarId());
@@ -196,4 +202,39 @@ public class HtmlView {
             url += "?calendarId=" + calendarId;
         return url;
     }
+    
+    
+    private static String createGmailPrepForm() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n\n<div id=\"mail_box\">");
+        sb.append("\n<p>Please select the entries you want to send as an email.</p>");
+        sb.append("\n<form id=\"mail_form\">");
+        sb.append("\n<table border=\"0\">");
+        sb.append("\n<tr>");
+        sb.append("\n<td>TO:</td>");
+        sb.append("\n<td><input id=\"mail_to\" type=\"text\" size=\"60\" maxlength=\"50\" title=\"TO\"></td>");
+        sb.append("\n</tr>");
+        sb.append("\n<tr>");
+        sb.append("\n<td>CC:</td>");
+        sb.append("\n<td><input id=\"mail_cc\" type=\"text\" size=\"60\" maxlength=\"50\" title=\"CC\"></td>");
+        sb.append("\n</tr>");
+        sb.append("\n<tr>");
+        sb.append("\n<td>Subject:</td>");
+        sb.append("\n<td><input id=\"mail_subject\" type=\"text\" size=\"60\" maxlength=\"50\" title=\"Subject\"></td>");
+        sb.append("\n</tr>  ");
+        sb.append("\n<tr>");
+        sb.append("\n<td>");
+        sb.append("\n<button type=\"button\" id=\"mail_button_open\" onclick=\"openGmail();\">");
+        sb.append("\n<!-- We could make this button more stylish if we want to with some more HTML here -->");
+        sb.append("\nOpen Gmail");
+        sb.append("\n</button>");
+        sb.append("\n</td>");
+        sb.append("\n<td>This will open a Gmail compose window with the selected calendar entries.</td>");
+        sb.append("\n</tr>");
+        sb.append("\n</table>");
+        sb.append("\n</form>");
+        sb.append("\n</div>\n");
+        return sb.toString();
+    }
+    
 }

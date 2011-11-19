@@ -34,6 +34,7 @@ Other technologies used:
     - Google Client Library for Java (see pom.xml for details)
     - Apache libraries such as commons-io (see pom.xml for details)
     - jQuery 1.7
+    - json2.js
 
 TODOs/ideas:
 ------
