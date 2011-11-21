@@ -23,10 +23,12 @@ var entryClasses = "title,content,author,updated,time".split(",");
 
 var log = function(s) {
 	//console is an object present in chrome which can be useful for debugging	
-	if (typeof(console) == 'undefined' || console == null) 
-		alert(s);
-	else
+	if (typeof(console) == 'undefined' || console == null) {
+		//alert(s); //alerts are annoying...
+    }
+	else {
 		console.log(s);
+    }
 };
 
 function isValidObject(o) {
@@ -180,12 +182,12 @@ function _prepareDataForGmail() {
 function entry_value(entryDiv, clsName) {
 	var elements = entryDiv.find("[class="+clsName+"]");
 	var count    = elements.length;
-	//In case of the clsName == 'time' we have 2 <span> tags, one with start and one with the end time, 
+	//In case of the clsName == 'time' we have 2 <span> tags, one with the start time and one with the end time, 
 	//therefore we need to be able to return both in separate fields, not as one!
 	var ret = (count > 1 ? []: ""); 
 	elements.each(function(index, elem){
 		if (count > 1)
-			ret.push( $(elem).text() );
+			ret.push($(elem).text());
 		else
 			ret = $(elem).text();
 	});

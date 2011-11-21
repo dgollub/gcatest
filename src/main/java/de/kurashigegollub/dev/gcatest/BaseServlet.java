@@ -50,7 +50,7 @@ public class BaseServlet extends HttpServlet {
         LOGIN(0, "login"),
         CALENDAR_LIST(1, "list"), //state we reach after the callback from google
         CALENDAR_ENTRIES(2, "entries"), //state after user clicked on one calendar
-        CALL_GMAIL(3, "gmail") //after user clicked on "send mail" button
+        //CALL_GMAIL(3, "gmail") //after user clicked on "send mail" button //this is done on client side in JavaScript
         ;
             
         private final int state;

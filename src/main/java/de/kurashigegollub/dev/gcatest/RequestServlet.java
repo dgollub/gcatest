@@ -59,9 +59,11 @@ public class RequestServlet extends BaseServlet {
         //If a calendarId is present, we need to show all the events from this particular 
         //calendar from now until +2 weeks.
         String calendarId = request.getParameter("calendarId");
-        //If a calendar was selected the user can select an event and send it to one or more
-        //mail addresses via his gmail account
-        String eventId = request.getParameter("eventId");
+        
+        //this is done on client side in JavaScript
+//      //  If a calendar was selected the user can select an event and send it to one or more
+//      //  mail addresses via his gmail account
+//      //  String eventId = request.getParameter("eventId");
         
         //we may get a state from the callback function after the user allows us to access his calendars
         //in this case we override our own state variable
@@ -69,11 +71,11 @@ public class RequestServlet extends BaseServlet {
             state = request.getParameter("state"); 
         appState = AppState.fromString(state);
         
-        log.info(String.format("code:         %s", code));
-        log.info(String.format("error:        %s", error));
-        log.info(String.format("calendarId:   %s", calendarId));
-        log.info(String.format("state:        %s", state));        
-        log.info(String.format("state:        %s", appState));
+//        log.info(String.format("code:         %s", code));
+//        log.info(String.format("error:        %s", error));
+//        log.info(String.format("calendarId:   %s", calendarId));
+//        log.info(String.format("state:        %s", state));        
+//        log.info(String.format("state:        %s", appState));
         
         if (appState == AppState.LOGIN) {
             //Login should not happen here, but better be safe
@@ -130,7 +132,8 @@ public class RequestServlet extends BaseServlet {
                     break;
                 case CALENDAR_ENTRIES:                    
                     appTitle += " - Calendar Entries";                
-                    nextState = AppState.CALL_GMAIL; //TODO: check this
+                    //nextState = AppState.CALL_GMAIL; //this is done on client side in JavaScript
+                    nextState = AppState.CALENDAR_ENTRIES;
                     backUrl = getAppStateBaseUrl(request, AppState.CALENDAR_LIST);
                     //TODO: do the gmail thing
                     break;
@@ -160,7 +163,7 @@ public class RequestServlet extends BaseServlet {
             
             //Access the Google Calendar API and print the result as HTML.
             out.println(accessGoogleCalendar(client, appState, getAppStateBaseUrl(request, nextState), 
-                                             backUrl, calendarId, eventId));
+                                             backUrl, calendarId));
             
             out.println(createBasicHtmlFooter(request));
         } 
@@ -183,7 +186,7 @@ public class RequestServlet extends BaseServlet {
     }
    
     private String accessGoogleCalendar(CalendarClient client, AppState appState, String baseUrl, String backUrl, 
-                                        String calendarId, String eventId)
+                                        String calendarId)
     throws Exception {
         
         String html = "<h3>No Data Access Yet</h3>";
@@ -256,9 +259,6 @@ public class RequestServlet extends BaseServlet {
                 break;
             }
                 
-            case CALL_GMAIL:
-                html = "TODO GMAIL"; //TODO: gmail
-                break;
         }
         
         return html;

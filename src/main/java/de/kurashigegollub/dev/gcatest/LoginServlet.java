@@ -48,6 +48,14 @@ public class LoginServlet extends BaseServlet {
             return;
         }
         
+        //Check if we have all the needed configuration to access Google's API
+        boolean configOk = true;
+        if (Utils.isEmpty(clientId) || Utils.isEmpty(clientSecret) || Utils.isEmpty(appName)) {
+            log.severe("YOU HAVE TO CONFIGURE THIS APPLICATION FIRST!");
+            configOk = false;
+        }
+        
+        
         session.setAttribute(APP_STATE, AppState.CALENDAR_LIST);
         
         String redirectUrl = buildAuthUrlForLogin(request);
@@ -61,34 +69,44 @@ public class LoginServlet extends BaseServlet {
 //            out.print("<META http-equiv=\"refresh\" CONTENT=\"5;URL=\"");
 //            out.print(redirectUrl);
 //            out.println("\">");
-            
-            out.println("<script type=\"text/javascript\">");
-            out.println("<!--");
-            out.println("setTimeout(\"redirect()\", 5000);");
-            out.println("function redirect(){");
-            out.println("   location.href='"+redirectUrl+"';");
-            out.println("}");
-            out.println("-->");
-            out.println("</script>");
+            if (configOk && !ERROR_TIMEOUT.equalsIgnoreCase(request.getParameter(ERROR))) {
+                out.println("<script type=\"text/javascript\">");
+                out.println("<!--");
+                out.println("setTimeout(\"redirect()\", 5000);");
+                out.println("function redirect(){");
+                out.println("   location.href='"+redirectUrl+"';");
+                out.println("}");
+                out.println("-->");
+                out.println("</script>");
+            }
             
             out.println("</head>");
             out.println("<body>");
 
             out.print("<h1>Welcome to ");
-            out.print(appName);
+            out.print(Utils.isEmpty(appName) ? "NOT CONFIGURED" : appName);
             out.println("</h1>");
             
             //TODO depending on whether or not the user granted us permission or he is not logged in, the following
             //     text should be different
             
-            out.println("<p>Please grant this application access to your Google calendars. You will be redirected to the access login page now.</p>");
-            out.println("<br>");
-            out.println("<p>Or you can click here: <a href=\""+redirectUrl+"\">Access Page</a></p>");
-            out.println("<br>");
-            
-            if (ERROR_TIMEOUT.equalsIgnoreCase(request.getParameter(ERROR))) {
-                out.println("<div class=\"error\">Your session is no longer valid. Please grant access to your calendar data again.</div>");
+            if (configOk && !ERROR_TIMEOUT.equalsIgnoreCase(request.getParameter(ERROR))) {
+                out.println("<p>Please grant this application access to your Google calendars. You will be redirected to the access login page now.</p>");
+                out.println("<br>");
+                out.println("<p>Or you can click here: <a href=\""+redirectUrl+"\">Access Page</a></p>");
+                out.println("<br>");
             }
+            else {
+                if (ERROR_TIMEOUT.equalsIgnoreCase(request.getParameter(ERROR))) {
+                    out.println("<div class=\"error\">Your session is no longer valid. Please grant access to your calendar data again.</div>");
+                }
+                if (!configOk) {
+                    out.println("<div class=\"error\">You need to configure this application first. Please set your Google API clientId, "
+                              + "clientSecret and application name in the src/main/resource/gcatest.properties file before you compile and"
+                              + " deploy this application.</div>");
+                }
+            }
+            
             
             out.println("<hr>");
             out.println("<p>");
