@@ -1,0 +1,190 @@
+README
+------
+
+This minimal application is based on a programming test I did for a job 
+interview in Tokyo, Japan. 
+
+For copyright and licence information please see the bottom of this readme file.
+
+I developed this on a Mac Book w/ Mac OS X 10.6 in NetBeans 7 between 2011-11-14
+and 2011-11-21. 
+I also used the Google Chrome browser (version 15.*) for testing.
+
+This application uses serveral source files from the original Google samples for
+google-api-java-client. For more details about the samples please see
+http://code.google.com/p/google-api-java-client
+
+The original sample code and sample classes I use are in the package 
+de.kurashigegollub.com.google.calender. The files I modified are as follows:
+
+EDITED:
+- CalendarClient.java
+- CalendarUrl.java
+- CalendarEntry.java
+- EventEntry.java
+
+ADDED (package de.kurashigegollub.dev.gcatest.googleadditions):
+- Author.java
+
+The rest of my own code is in the package de.kurashigegollub.dev.*.
+
+Other technologies used:
+    - Java EE
+    - JavaScript
+    - CSS
+    - HTML
+    - git
+    - Maven 3 (bundled w/ NetBeans 7)
+    - Tomcat 6.0.33
+    - Google Client Library for Java (see pom.xml for details)
+    - Apache libraries such as commons-io (see pom.xml for details)
+    - jQuery 1.7
+    - json2.js
+
+INSTALLATION/BUILD/CONFIGURATION
+--------------------------------
+First of all you need to input your Google API data (clientId, clientSecret and
+application name) in the src/main/resource/gcatest.properties file.
+You find more information about these parameters on the Google API Console
+https://code.google.com/apis/console
+
+If you use NetBeans 7 you should be able to just open this as a Maven project.
+You then need to have Tomcat 6 installed somewhere on your system and configure
+NetBeans to use it (see menu "Tools|Server"). You can then just press "Run" (or
+press F6 on your keyboard) and give it a go.
+
+Otherwise you can just use Maven (minimum requirement is Maven 2) to compile the
+source and build a .war file (mvn clean && mvn package) which you can then 
+deploy on to your Tomcat 6 server and point your browser to 
+http://<tomcat-server-ip-or-name-with-port>/GCATest
+
+TODOs/ideas:
+------
+
+- refactor exception and error handling to be more streamlined
+- refactor application flow
+    + if only one calendar is present, the user should see all the entries 
+      immediately and he shouldn't be forced to first click on the calendar
+    + ...
+
+- add a html template system or JSF, etc to replace the direct HTML output in 
+  the Java classes (maybe http://code.google.com/closure/templates/)
+  OR
+  use JSP/JSF instead
+- add unit tests
+- add proper JDoc annotations and documentation
+- prettify HTML & CSS
+
+
+Task description is as follows:
+-------------------------------
+
+++++++
+
+goal: create a web application to view a gmail user's calendar data,
+with the option to forward the calendar data in a mail message
+
+process: application operates as per the following
+1 User opens the test application page and on loading, the user's
+calender data for the next 2 weeks is retrieved and displayed.
+
+2 Authenticate the user via any Google authentication method, OAuth,
+AuthSub, ClientLogin, etc.
+(http://code.google.com/apis/accounts/docs/GettingStarted.html)
+
+3 User the Google Calendar API to retrieve user calendar data.
+(http://code.google.com/apis/calendar/data/2.0/developers_guide.html)
+
+4 The user can enter 1 or more mail address and click a button to open
+a gmail compose window prepopulated with the calendar data.
+
+notes:
+- Please create your own gmail account for development.
+- The test application should be developed in Java1.6 and run on Tomcat 6.0.
+
+++++++
+
+Personal comments
+-------------------------------------------------------------
+My general approach to this application was to get familiar with the Google API
+not only via Google's own API documenation, but also by using the code examples
+Google provides. 
+
+Therefore I decided to not write any "low-level" communication layer using 
+either pure java.io/java.net packages or a library like Apache Commons 
+HttpClient, but instead opted to extract and use the necessary code from the
+Google example code base.
+
+I also decided to use servlets instead of, for example, JSP pages or pure HTML & 
+client-side JavaScript, because I wanted to have the majority of the business
+logic to be on the server side (and I am not a big fan of JSP). Client-side
+logic can be fine too, but you should always double check every input, work flow
+etc on the server side as well.
+
+I didn't put a lot of effort into the GUI design/HTML output, because I think 
+this task is and should only be a programming test. One can always prettify the
+HTML and CSS to make things visual appealing, but first one should make sure 
+that the general business logic and application flow is correctly implemented.
+
+Normally the HTML output should be done via some sort of template engine or 
+JSF or the like and not within the Java classes themselves, which is a bad 
+design decision. Unfortunetly due to time contraints I could not use such a
+system.
+
+Overall I think I spent about 16 to 20 hours, most of them reading and trying to 
+understand the documentation and example code.
+
+I also decided to let the user pick one calendar first from a list of all his 
+calendars and then present him with a detailed list with all entries, 
+from which he can choose which ones he wants to send via an email. This was done
+to provide some more workflow to the application. Also the selection and loading
+could be done in a more AJAX-y manner instead of full page reloads, which would 
+add more smoothness to the application. I did not implement that due to time 
+constraints on my side.
+
+Regarding requirement (4), the Gmail feature implementation: I was unable to
+find any official JavaScript API to access Gmail directly from the application, 
+because there doesn't seem to exist one. Therefore I decided to just use 
+JavaScript to compose a URL that would just open the Gmail compose window 
+prepopulated with the user input. This design has major drawback, the main one
+being that you are limited by Google's URL character limit.
+
+See the following links for details:
+- http://code.google.com/apis/gmail/docs/
+- http://stackoverflow.com/questions/4913078/is-it-possible-to-interact-with-gmail-using-ajax-javascript
+- http://www.jamesyu.org/2011/02/05/introducing-gmailr-an-unofficial-javscript-api-for-gmail/
+- http://stackoverflow.com/questions/2493651/opening-gmails-compose-page-opens-up-in-the-whole-page-need-to-open-in-an-ifr
+- http://stackoverflow.com/questions/2590467/prefilling-large-volumes-of-body-text-in-gmail-compose-getting-a-request-uri-too
+
+You could of course provide your own version of the Gmail composer window and 
+funnel everything through the Gmail API via IMAP/SMTP access, but that would 
+take more time to implement.
+
+All in all this was a fun little programming test which I enjoyed quite a lot.
+To learn how to access and use the Google API was quite fun.
+
+
+COPYRIGHT & LICENCE INFORMATION
+-------------------------------
+
+The copyright for 3rd party code is clearly stated in every 3rd party file.
+
+All other code is copyright (C) 2011 by Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
+
+The licence for my part of the code is "Apache License, Version 2.0", and it is 
+the same as the Google example code, which I use as stated above.
+
+/**
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+Copyright (C) 2011 Daniel Kurashige-Gollub, daniel@kurashige-gollub.de
